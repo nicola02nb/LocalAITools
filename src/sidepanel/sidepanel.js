@@ -256,3 +256,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
+const home = document.getElementById('home');
+async function loadReadme() {
+    try {
+        const response = await fetch(chrome.runtime.getURL('README.md'));
+        if (response.ok) {
+            const content = await response.text();
+            home.innerHTML = convertTextToHTML(content);
+        } else {
+            console.error('Failed to load README.md:', response.status);
+            home.innerHTML += '<p>Failed to load README content.</p>';
+        }
+    } catch (error) {
+        console.error('Error loading README.md:', error);
+        home.innerHTML += '<p>Error loading README content.</p>';
+    }
+}
+loadReadme();

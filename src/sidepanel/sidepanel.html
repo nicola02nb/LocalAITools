@@ -11,25 +11,7 @@
         <div id="tab-buttons">
         </div>
         <div class="tab-content">
-            <div class="tab-pane active" id="home">
-                <h3>Gemini Nano AI Tools</h3>
-                <br>
-                <p>A Chrome extension to chat with the Nano AI Api <a href="https://developer.chrome.com/docs/ai/built-in">built into Chrome</a>.</p>
-                <p>All models are run locally on your hardware using the chrome <a href="chrome://flags">experiments</a> that should be enabled:</p>
-                <ul>
-                    <li><a href="chrome://flags/#optimization-guide-on-device-model">Opimization on device model (runs model on local hardware)</a></li>
-                    <li><a href="chrome://flags/#prompt-api-for-gemini-nano-multimodal-input">LanguageModel</a></li>
-                    <li><a href="chrome://flags/#summarization-api-for-gemini-nano">Summarizer</a></li>
-                    <li><a href="chrome://flags/#translation-api">Translator</a></li>
-                    <li><a href="chrome://flags/#language-detection-api">Language Detector</a></li>
-                    <li><a href="chrome://flags/#writer-api-for-gemini-nano">Writer</a></li>
-                    <li><a href="chrome://flags/#rewriter-api-for-gemini-nano">Rewriter</a></li>
-                </ul>
-                <p>
-                    After you have enabled the models you desire, you have to restart your browser;
-                    and then, after the background download has finished, you can acces the models using the new tabs.
-                </p>
-            </div>
+            <div class="tab-pane active" id="home"></div>
             <div class="tab-pane" id="lm">
                 <h3>Language Model</h3>
                 <button class="options-button"><div class="gear"></div></button>
@@ -142,13 +124,6 @@
                     <input type="submit" value="Detect">
                 </form>
                 <div id="detector-message"></div>
-            </div>
-
-            <div class="tab-pane" id="settings">
-                <h3>Settings</h3>
-                <div class="settings-options">
-                                       
-                </div>
             </div>
         </div>
     </div>
