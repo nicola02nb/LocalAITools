@@ -29,7 +29,7 @@ Navigate to Chrome flags (`chrome://flags`) and enable:
 - [Rewriter API](chrome://flags/#rewriter-api-for-gemini-nano)
 
 ## Disclaimer
-This extension leverages Chrome's experimental Gemini Nano AI APIs which are still under active development. Please be aware that these APIs may:
+This extension leverages Chrome's experimental Gemini Nano AI [APIs](https://developer.chrome.com/docs/ai/built-in) which are still under active development. Please be aware that these APIs may:
 
 - Change without prior notice
 - Exhibit inconsistent behavior
