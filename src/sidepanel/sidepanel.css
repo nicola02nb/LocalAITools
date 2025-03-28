@@ -21,17 +21,13 @@ body{
 
 .tab-container{
     padding: 0;
-    height: 100vh;
-    max-height: 100vh;
     display: grid;
+    grid-template-columns: 100%;
     grid-template-rows: min-content auto;
 }
 
-.tab-pane{
+.tab-pane.hidden{
     display: none;
-}
-.tab-pane.active{
-    display: block;
 }
 
 .tab-buttons{
@@ -105,8 +101,8 @@ h4{
     padding: 5px;
     border: var(--inactive-tab) 4px solid;
     border-radius: 10px;
-    overflow-y: none;
-    min-height: 60%;
+    height: 100vw;
+    overflow: scroll;
 }
 
 .message{
@@ -115,6 +111,7 @@ h4{
     padding: 8px 12px;
     margin: 8px 0;
     border-radius: 18px;
+    overflow-x: scroll;
 }
 .message.user{
     align-self: flex-end; margin-left: auto;

@@ -11,7 +11,7 @@
         <div id="tab-buttons">
         </div>
         <div class="tab-content">
-            <div class="tab-pane active" id="home"></div>
+            <div class="tab-pane" id="home"></div>
             <div class="tab-pane" id="lm">
                 <h3>Language Model</h3>
                 <button class="options-button"><div class="gear"></div></button>
@@ -124,6 +124,18 @@
                     <input type="submit" value="Detect">
                 </form>
                 <div id="detector-message"></div>
+            </div>
+
+
+            <div class="tab-pane" id="settings">
+                <label for="streamOutput">Output streamed:</label>
+                <input id="streamOutput" type="checkbox" name="streamOutput" checked>
+                <br>
+                <label for="delayForStream">Delay for stream(ms):</label>
+                <input id="delayForStream" type="number" name="delayForStream" value="25" step="25" min="0">
+                <div id="lm-messages">
+                    <div class="message">ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss</div>
+                </div>
             </div>
         </div>
     </div>

@@ -49,6 +49,10 @@ export class NanoAILanguageModel extends NanoAIService {
         return await this.service.prompt(message);
     }
 
+    promptStreaming(message){
+        return this.service.promptStreaming(message);
+    }  
+
     getTokensStatus() {
         return {
             used: this.service.tokensSoFar,
@@ -87,6 +91,10 @@ export class NanoAISummarizer extends NanoAIService {
 
     async summarize(text, context = '') {
         return await this.service.summarize(text, { context: context });
+    }
+
+    summarizeStreaming(text, context = '') {
+        return this.service.summarizeStreaming(text, { context: context });
     }
 
     setSharedContext(sharedContext) {

@@ -16,7 +16,7 @@ function isAvailable(type) {
         'writer': 'writer',
         'rewriter': 'rewriter'
     };
-    return window?.ai?.[mapping[type]] || type === 'home';
+    return window?.ai?.[mapping[type]] || type === 'home' || type === 'settings';
 }
 
 function createButton(type){
@@ -35,7 +35,7 @@ function createButton(type){
 
 function initializeButtons() {
     let buttonContainer = document.getElementById('tab-buttons');
-    let types = ['home', 'lm', 'summarizer', 'translate', 'detector', 'writer', 'rewriter'];
+    let types = ['home', 'lm', 'summarizer', 'translate', 'detector', 'writer', 'rewriter', 'settings'];
     for (const type of types) {
         if (!isAvailable(type)) continue;
         let button = createButton(type);
@@ -53,10 +53,21 @@ function activateTab(tabId) {
     }
     for (const pane of PANES) {
         if (pane.getAttribute('id') === tabId) {
-            pane.style.display = 'block';
+            pane.classList.remove('hidden');
         } else {
-            pane.style.display = 'none';
+            pane.classList.add('hidden');
         }
+    }
+}
+
+async function streamResponse(response, element) {
+    const stream = response;
+    for await (const chunk of stream) {
+        const tokenizedChunk = chunk.split(' ');
+        for (const token of tokenizedChunk) {
+            element.textContent += token+" ";
+            await new Promise(resolve => setTimeout(resolve, loadedSettings.delayForStream));
+        }            
     }
 }
 
@@ -115,8 +126,9 @@ document.addEventListener('DOMContentLoaded', function() {
         LM_MESSAGES.innerHTML = '';
     });
     
-    document.getElementById('lm-form').addEventListener('submit', function(event) {
+    document.getElementById('lm-form').addEventListener('submit', async function(event) {
         event.preventDefault();
+        updateTokensStatus();
         const formData = new FormData(event.target);
         let text = '';
         formData.forEach((value, key) => {
@@ -124,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 text = value;
             }
         });
+        document.getElementById('lm-text').value = '';
         let userText = document.createElement('div');
         userText.textContent = text;
         userText.className = 'message user';
@@ -131,19 +144,24 @@ document.addEventListener('DOMContentLoaded', function() {
         let aiText = document.createElement('div');
         aiText.className = 'message ai';
         aiText.appendChild(loader);
-        LM_MESSAGES.appendChild(aiText);    
-        Promise.resolve(LM.prompt(text)).then((response) => {
-            aiText.removeChild(loader);
-            aiText.innerHTML = convertTextToHTML(response);
+        LM_MESSAGES.appendChild(aiText);
+        if(loadedSettings.streamOutput) {
+            await streamResponse(LM.promptStreaming(text), aiText);
             updateTokensStatus();
+        } else {
+            Promise.resolve(LM.prompt(text)).then((response) => {
+                aiText.removeChild(loader);
+                aiText.innerHTML = convertTextToHTML(response);
+                updateTokensStatus();
+            }
+            ).catch((error) => {
+                aiText.removeChild(loader);
+                aiText.classList.remove('ai');
+                aiText.classList.add('error');
+                aiText.textContent = `Error: ${error.message}`;
+                updateTokensStatus();
+            });
         }
-        ).catch((error) => {
-            aiText.removeChild(loader);
-            aiText.classList.remove('ai');
-            aiText.classList.add('error');
-            aiText.textContent = `Error: ${error.message}`;
-        });
-        document.getElementById('lm-text').value = '';
     });
 });
 
@@ -169,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         SUMMARIZER.setLength(lengthValue);
     });
 
-    document.getElementById('summarizer-form').addEventListener('submit', function(event) {
+    document.getElementById('summarizer-form').addEventListener('submit', async function(event) {
         event.preventDefault();
         SUMMARIZER_MESSAGE.innerHTML = '';
         const formData = new FormData(event.target);
@@ -186,17 +204,21 @@ document.addEventListener('DOMContentLoaded', function() {
         let aiText = document.createElement('div');
         aiText.className = 'message ai';
         aiText.appendChild(loader);
-        SUMMARIZER_MESSAGE.appendChild(aiText);         
-        Promise.resolve(SUMMARIZER.summarize(text, context)).then((response) => {
-            aiText.removeChild(loader);
-            aiText.innerHTML = convertTextToHTML(response);
-        }
-        ).catch((error) => {
-            aiText.removeChild(loader);
-            aiText.classList.remove('ai');
-            aiText.classList.add('error');
-            aiText.textContent = `Error: ${error.message}`;
-        });
+        SUMMARIZER_MESSAGE.appendChild(aiText);    
+        if(loadedSettings.streamOutput) {
+            await streamResponse(SUMMARIZER.summarizeStreaming(text), aiText);
+        } else {
+            Promise.resolve(SUMMARIZER.summarize(text, context)).then((response) => {
+                aiText.removeChild(loader);
+                aiText.innerHTML = convertTextToHTML(response);
+            }
+            ).catch((error) => {
+                aiText.removeChild(loader);
+                aiText.classList.remove('ai');
+                aiText.classList.add('error');
+                aiText.textContent = `Error: ${error.message}`;
+            });
+        }        
     });
 });
 
@@ -275,3 +297,23 @@ async function loadReadme() {
     }
 }
 loadReadme();
+
+const settings = document.getElementById('settings');
+const loadedSettings = {};
+var inputs = settings.getElementsByTagName('input');
+for (const input of inputs) {
+    loadedSettings[input.id] = input.value;
+    input.addEventListener('change', function() {
+        if (this.type === 'checkbox') {
+            loadedSettings[this.id] = this.checked;
+        }
+        else if (this.type === 'number') {
+            loadedSettings[this.id] = parseFloat(this.value);
+        } else {
+            loadedSettings[this.id] = this.value;
+        }
+        /* const data = {};
+        data[input.id] = this.value;
+        chrome.storage.local.set(data); */
+    });
+}
