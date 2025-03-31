@@ -12,14 +12,14 @@ chrome.commands.onCommand.addListener((command, tab) => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "lm" || info.menuItemId === "summarizer" 
     || info.menuItemId === "translate" || info.menuItemId === "detector") {
-    let data = {};
-    data[info.menuItemId] = null;
-    chrome.storage.local.set(data, () => {
+    let toPass = {};
+    toPass[info.menuItemId] = null;
+    chrome.storage.local.set({ toPass: toPass}, () => {
       chrome.sidePanel.setOptions({ enabled: true });
       chrome.sidePanel.open({ windowId: tab.windowId });
     });
-    data[info.menuItemId] = info.selectionText;
-    chrome.storage.local.set(data);
+    toPass[info.menuItemId] = info.selectionText;
+    chrome.storage.local.set({ toPass: toPass});
   }
 });
 

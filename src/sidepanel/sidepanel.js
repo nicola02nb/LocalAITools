@@ -1,8 +1,8 @@
 import { convertTextToHTML } from '../lib/llmToHtml.js';
 import * as NanoAI from '../lib/nano-ai.js';
 
-let BUTTONS;
-let PANES;
+var buttons;
+var panes = document.getElementsByClassName('tab-pane');
 
 const loader = document.createElement('div');
 loader.className = 'loader';
@@ -24,39 +24,63 @@ function createButton(type){
     button.className = 'tab-button';
     button.innerHTML = type.charAt(0).toUpperCase() + type.slice(1);
     button.setAttribute('data-tab', type);
-    if (type === 'home') button.classList.add('active');
     button.addEventListener('click', function(event) {
         event.preventDefault();
         const tabId = this.getAttribute('data-tab');
         activateTab(tabId);
+        chrome.storage.local.set({ lastTab: tabId });
     });
     return button;
 }
 
 function initializeButtons() {
-    let buttonContainer = document.getElementById('tab-buttons');
-    let types = ['home', 'lm', 'summarizer', 'translate', 'detector', 'writer', 'rewriter', 'settings'];
+    const buttonContainer = document.getElementById('tab-buttons');
+    const types = ['home', 'lm', 'summarizer', 'translate', 'detector', 'writer', 'rewriter', 'settings'];
     for (const type of types) {
         if (!isAvailable(type)) continue;
         let button = createButton(type);
         buttonContainer.appendChild(button);
     }
+    chrome.storage.local.get('lastTab').then((result) => {
+        const lastTab = result.lastTab || 'home';
+        activateTab(lastTab);
+    });
 }
 
 function activateTab(tabId) {
-    for (const button of BUTTONS) {
+    for (const button of buttons) {
         if (button.getAttribute('data-tab') === tabId) {
             button.classList.add('active');
         } else {
             button.classList.remove('active');
         }
     }
-    for (const pane of PANES) {
+    for (const pane of panes) {
         if (pane.getAttribute('id') === tabId) {
             pane.classList.remove('hidden');
         } else {
             pane.classList.add('hidden');
         }
+    }
+}
+
+function setInputValue(input, value) {
+    if (input.type === 'checkbox') {
+        input.checked = value;
+    } else if (input.type === 'number') {
+        input.value = parseFloat(value);
+    } else {
+        input.value = value;
+    }
+}
+
+function getInputValue(input) {
+    if (input.type === 'checkbox') {
+        return input.checked;
+    } else if (input.type === 'number') {
+        return parseFloat(input.value);
+    } else {
+        return input.value;
     }
 }
 
@@ -73,8 +97,7 @@ async function streamResponse(response, element) {
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeButtons();
-    BUTTONS = document.getElementsByClassName('tab-button');
-    PANES = document.getElementsByClassName('tab-pane');
+    buttons = document.getElementsByClassName('tab-button');
 
     let optionsButttons = document.getElementsByClassName('options-button');
     for (const button of optionsButttons) {
@@ -84,12 +107,32 @@ document.addEventListener('DOMContentLoaded', function() {
             options.classList.toggle('hidden');
         });
     }
+
+    const inputs = document.querySelectorAll('input, select');
+    chrome.storage.local.get("settings").then((result) => {
+        const settings = result.settings || {};
+        for (const input of inputs) {
+            if (settings?.[input.id] !== undefined)
+                setInputValue(input, settings[input.id]);
+        }
+    });
+    for (const input of inputs) {
+        if (!input.id.endsWith('-text')) {
+            input.addEventListener('change', function() {
+                chrome.storage.local.get('settings').then((result) => {
+                    const settings = result.settings || {};
+                    settings[this.id] = getInputValue(this);
+                    chrome.storage.local.set({ settings: settings });
+                });
+            });
+        }
+    }
 });
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace !== 'local') return;
-    for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-        if(newValue !== null) {
+    if (namespace !== 'local' || !changes.toPass) return;
+    for (let [key, { oldValue, newValue }] of Object.entries(!changes.toPass)) {
+        if(newValue) {
             document.getElementById(key+"-text").value = newValue;
             activateTab(key);
             let data = {};
@@ -100,8 +143,8 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     }
 });
 
-let LM = new NanoAI.NanoAILanguageModel();
-let LM_MESSAGES;
+var LM = new NanoAI.NanoAILanguageModel();
+var LM_MESSAGES;
 
 function updateTokensStatus() {
     const tokensStatus = LM.getTokensStatus();
@@ -165,8 +208,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-let SUMMARIZER = new NanoAI.NanoAISummarizer();
-let SUMMARIZER_MESSAGE;
+var SUMMARIZER = new NanoAI.NanoAISummarizer();
+var SUMMARIZER_MESSAGE;
 document.addEventListener('DOMContentLoaded', function() {
     SUMMARIZER_MESSAGE = document.getElementById('summarizer-message');
 
@@ -222,8 +265,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-let DETECTOR = new NanoAI.NanoAILanguageDetector();
-let DETECTOR_MESSAGE;
+var DETECTOR = new NanoAI.NanoAILanguageDetector();
+var DETECTOR_MESSAGE;
 document.addEventListener('DOMContentLoaded', function() {
     DETECTOR_MESSAGE = document.getElementById('detector-message');
 
@@ -297,23 +340,3 @@ async function loadReadme() {
     }
 }
 loadReadme();
-
-const settings = document.getElementById('settings');
-const loadedSettings = {};
-var inputs = settings.getElementsByTagName('input');
-for (const input of inputs) {
-    loadedSettings[input.id] = input.value;
-    input.addEventListener('change', function() {
-        if (this.type === 'checkbox') {
-            loadedSettings[this.id] = this.checked;
-        }
-        else if (this.type === 'number') {
-            loadedSettings[this.id] = parseFloat(this.value);
-        } else {
-            loadedSettings[this.id] = this.value;
-        }
-        /* const data = {};
-        data[input.id] = this.value;
-        chrome.storage.local.set(data); */
-    });
-}
