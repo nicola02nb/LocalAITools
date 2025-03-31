@@ -1,10 +1,11 @@
 class NanoAIService {
     constructor(serviceType) {
-        this.serviceType = serviceType;
-        this.options = {};
         if ('ai' in window && serviceType in window.ai) {
-            this.init();
+            this.serviceType = serviceType;
+            this.options = {};
             this.controller = new AbortController();
+        } else {
+            throw new Error(`The ${serviceType} API is not available.`);
         }
     }
     

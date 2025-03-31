@@ -11,8 +11,8 @@ function isAvailable(type) {
     const mapping = {
         'lm': 'languageModel',
         'summarizer': 'summarizer',
-        'translate': 'translator',
         'detector': 'languageDetector',
+        'translate': 'translator',
         'writer': 'writer',
         'rewriter': 'rewriter'
     };
@@ -35,7 +35,7 @@ function createButton(type){
 
 function initializeButtons() {
     const buttonContainer = document.getElementById('tab-buttons');
-    const types = ['home', 'lm', 'summarizer', 'translate', 'detector', 'writer', 'rewriter', 'settings'];
+    const types = ['home', 'lm', 'summarizer', 'detector', 'translate', 'writer', 'rewriter', 'settings'];
     for (const type of types) {
         if (!isAvailable(type)) continue;
         let button = createButton(type);
@@ -82,6 +82,15 @@ function getInputValue(input) {
     } else {
         return input.value;
     }
+}
+
+function passTextToTab(key, value) {
+    document.getElementById(key+"-text").value = value;
+    activateTab(key);
+    let toPass = {};
+    toPass[key] = undefined;
+    chrome.storage.local.set({ toPass: toPass});
+    document.getElementById(key+"-form").dispatchEvent(new Event('submit'));
 }
 
 async function streamResponse(response, element) {
@@ -139,24 +148,23 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
-});
 
-chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace !== 'local' || !changes.toPass) return;
-    for (let [key, { oldValue, newValue }] of Object.entries(!changes.toPass)) {
-        if(newValue) {
-            document.getElementById(key+"-text").value = newValue;
-            activateTab(key);
-            let data = {};
-            data[key] = undefined;
-            chrome.storage.local.set(data);
-            document.getElementById(key+"-form").dispatchEvent(new Event('submit'));
+    chrome.storage.local.get('toPass').then((result) => {
+        const toPass = result.toPass || {};
+        for (const key in toPass) {
+            passTextToTab(key, toPass[key]);
         }
-    }
+    });
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+        if (namespace !== 'local' || !changes.toPass) return;
+        for (let [key, value] of Object.entries(changes.toPass.newValue)) {
+            passTextToTab(key, value);
+        }
+    });
 });
 
-var LM = new NanoAI.NanoAILanguageModel();
-var LM_MESSAGES;
+const LM = new NanoAI.NanoAILanguageModel();
+const LM_MESSAGES  = document.getElementById('lm-messages');
 
 function updateTokensStatus() {
     const tokensStatus = LM.getTokensStatus();
@@ -168,8 +176,6 @@ function updateTokensStatus() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    LM_MESSAGES = document.getElementById('lm-messages');
-
     document.getElementById('lm-temperature').addEventListener('change', function() {
         const temperatureValue = this.value;
         LM.setTemperature(temperatureValue);
@@ -201,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
         aiText.className = 'message ai';
         aiText.appendChild(loader);
         LM_MESSAGES.appendChild(aiText);
+        await LM.init();
         if(settings.streamOutput) {
             aiText.removeChild(loader);
             await streamResponse(LM.promptStreaming(text), aiText);
@@ -227,11 +234,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-var SUMMARIZER = new NanoAI.NanoAISummarizer();
-var SUMMARIZER_MESSAGE;
+const SUMMARIZER = new NanoAI.NanoAISummarizer();
+const SUMMARIZER_MESSAGE = document.getElementById('summarizer-message');
 document.addEventListener('DOMContentLoaded', function() {
-    SUMMARIZER_MESSAGE = document.getElementById('summarizer-message');
-
     document.getElementById('summarizer-sharedContext').addEventListener('change', function() {
         const sharedContextValue = this.value;
         SUMMARIZER.setSharedContext(sharedContextValue);
@@ -266,7 +271,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let aiText = document.createElement('div');
         aiText.className = 'message ai';
         aiText.appendChild(loader);
-        SUMMARIZER_MESSAGE.appendChild(aiText);    
+        SUMMARIZER_MESSAGE.appendChild(aiText);   
+        await SUMMARIZER.init(); 
         if(settings.streamOutput) {
             aiText.removeChild(loader);
             await streamResponse(SUMMARIZER.summarizeStreaming(text), aiText);
@@ -285,12 +291,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-var DETECTOR = new NanoAI.NanoAILanguageDetector();
-var DETECTOR_MESSAGE;
+const DETECTOR = new NanoAI.NanoAILanguageDetector();
+const DETECTOR_MESSAGE = document.getElementById('detector-message');
 document.addEventListener('DOMContentLoaded', function() {
-    DETECTOR_MESSAGE = document.getElementById('detector-message');
-
-    document.getElementById('detector-form').addEventListener('submit', function(event) {
+    document.getElementById('detector-form').addEventListener('submit', async function(event) {
         event.preventDefault();
         DETECTOR_MESSAGE.appendChild(loader);
         const formData = new FormData(event.target);
@@ -304,6 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
         aiText.className = 'message ai';
         aiText.appendChild(loader);
         DETECTOR_MESSAGE.appendChild(aiText);
+        await DETECTOR.init();
         Promise.resolve(DETECTOR.detect(text)).then((response) => {
             aiText.removeChild(loader);
             let result = document.createElement('table');

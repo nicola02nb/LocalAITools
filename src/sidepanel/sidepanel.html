@@ -30,7 +30,7 @@
                 </div>
                 <hr>
                 <form id="lm-form">
-                    <label for="lm-text">Send Message:</label>
+                    <label for="lm-text">Message:</label>
                     <input id="lm-text" type="text" name="text" placeholder="Type your message here..." required>
                     <input type="submit" value="Send">
                     <input type="reset" value="Stop">                       
@@ -81,6 +81,19 @@
                 <div id="summarizer-message"></div>
             </div>
 
+            <div class="tab-pane" id="detector">
+                <h3>Language Detector</h3>
+                <br>
+                <hr>
+                <form id="detector-form">
+                    <label for="detector-text">Text:</label>
+                    <input id="detector-text" type="text" name="text" placeholder="Type your message here..." required>
+                    <br>
+                    <input type="submit" value="Detect">
+                </form>
+                <div id="detector-message"></div>
+            </div>
+
             <div class="tab-pane" id="translate">
                 <h3>Translator</h3>
                 <button class="options-button">Settings</button>
@@ -113,20 +126,6 @@
                 </form>
                 <div id="translate-message"></div>
             </div>
-
-            <div class="tab-pane" id="detector">
-                <h3>Language Detector</h3>
-                <br>
-                <hr>
-                <form id="detector-form">
-                    <label for="detector-text">Text:</label>
-                    <input id="detector-text" type="text" name="text" placeholder="Type your message here..." required>
-                    <br>
-                    <input type="submit" value="Detect">
-                </form>
-                <div id="detector-message"></div>
-            </div>
-
 
             <div class="tab-pane" id="settings">
                 <label for="streamOutput">Output streamed:</label>
