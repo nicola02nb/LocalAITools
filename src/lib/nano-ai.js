@@ -4,6 +4,7 @@ class NanoAIService {
         this.options = {};
         if ('ai' in window && serviceType in window.ai) {
             this.init();
+            this.controller = new AbortController();
         }
     }
     
@@ -28,6 +29,20 @@ class NanoAIService {
     async reInit(){
         await this.init(this.options);
     }
+
+    abort(){
+        if (this.controller) {
+            this.controller.abort();
+            this.controller = new AbortController();
+        }
+    }
+
+    destroy() {
+        this.abort();
+        if (this.service) {
+            this.service.destroy();
+        }
+    }
 }
 
 export class NanoAILanguageModel extends NanoAIService {
@@ -46,11 +61,11 @@ export class NanoAILanguageModel extends NanoAIService {
     }
 
     async prompt(message) {
-        return await this.service.prompt(message);
+        return await this.service.prompt(message, { signal: this.controller.signal });
     }
 
     promptStreaming(message){
-        return this.service.promptStreaming(message);
+        return this.service.promptStreaming(message, { signal: this.controller.signal });
     }  
 
     getTokensStatus() {

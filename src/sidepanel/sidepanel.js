@@ -1,4 +1,4 @@
-import { convertTextToHTML } from '../lib/llmToHtml.js';
+import { convertTextToHTML, convertTextToHTMLTokens } from '../lib/llmToHtml.js';
 import * as NanoAI from '../lib/nano-ai.js';
 
 var buttons;
@@ -86,14 +86,23 @@ function getInputValue(input) {
 
 async function streamResponse(response, element) {
     const stream = response;
-    for await (const chunk of stream) {
-        const tokenizedChunk = chunk.split(' ');
-        for (const token of tokenizedChunk) {
-            element.textContent += token+" ";
-            await new Promise(resolve => setTimeout(resolve, loadedSettings.delayForStream));
-        }            
+    try {
+        for await (const chunk of stream) {
+            const htmlTokens = convertTextToHTMLTokens(chunk);
+            for (const token of htmlTokens) {
+                element.innerHTML += token+" ";
+                await new Promise(resolve => setTimeout(resolve, settings.delayForStream));
+            }            
+        }
+    } catch (error) {
+        element.classList.remove('ai');
+        element.classList.add('error');
+        element.innerHTML += `<br>Error: ${error.message}</div>`;
+        updateTokensStatus();
     }
 }
+
+const settings = {};
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeButtons();
@@ -110,19 +119,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const inputs = document.querySelectorAll('input, select');
     chrome.storage.local.get("settings").then((result) => {
-        const settings = result.settings || {};
+        const settingsLocal = result.settings || {};
         for (const input of inputs) {
-            if (settings?.[input.id] !== undefined)
-                setInputValue(input, settings[input.id]);
+            if (settingsLocal?.[input.id] !== undefined){
+                setInputValue(input, settingsLocal[input.id]);
+                settings[input.id] = settingsLocal[input.id];
+            }
         }
     });
     for (const input of inputs) {
         if (!input.id.endsWith('-text')) {
             input.addEventListener('change', function() {
                 chrome.storage.local.get('settings').then((result) => {
-                    const settings = result.settings || {};
+                    const settingsLocal = result.settings || {};
+                    settingsLocal[this.id] = getInputValue(this);
                     settings[this.id] = getInputValue(this);
-                    chrome.storage.local.set({ settings: settings });
+                    chrome.storage.local.set({ settings: settingsLocal });
                 });
             });
         }
@@ -169,7 +181,8 @@ document.addEventListener('DOMContentLoaded', function() {
         LM_MESSAGES.innerHTML = '';
     });
     
-    document.getElementById('lm-form').addEventListener('submit', async function(event) {
+    const lmForm = document.getElementById('lm-form');
+    lmForm.addEventListener('submit', async function(event) {
         event.preventDefault();
         updateTokensStatus();
         const formData = new FormData(event.target);
@@ -188,7 +201,8 @@ document.addEventListener('DOMContentLoaded', function() {
         aiText.className = 'message ai';
         aiText.appendChild(loader);
         LM_MESSAGES.appendChild(aiText);
-        if(loadedSettings.streamOutput) {
+        if(settings.streamOutput) {
+            aiText.removeChild(loader);
             await streamResponse(LM.promptStreaming(text), aiText);
             updateTokensStatus();
         } else {
@@ -206,6 +220,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+    lmForm.addEventListener('reset', function(event) {
+        event.preventDefault();
+        LM.abort();
+    });
+
 });
 
 var SUMMARIZER = new NanoAI.NanoAISummarizer();
@@ -248,7 +267,8 @@ document.addEventListener('DOMContentLoaded', function() {
         aiText.className = 'message ai';
         aiText.appendChild(loader);
         SUMMARIZER_MESSAGE.appendChild(aiText);    
-        if(loadedSettings.streamOutput) {
+        if(settings.streamOutput) {
+            aiText.removeChild(loader);
             await streamResponse(SUMMARIZER.summarizeStreaming(text), aiText);
         } else {
             Promise.resolve(SUMMARIZER.summarize(text, context)).then((response) => {

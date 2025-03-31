@@ -66,7 +66,7 @@ export function convertTextToHTML(text) {
         const processedContent = content
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             .replace(/\*(.*?)\*/g, "<em>$1</em>");
-        return `<ul class="level-${level}"><li>${processedContent}</li></ul>`;
+        return `<ul class='level-${level}'><li>${processedContent}</li></ul>`;
     });
 
     // Listas ordenadas
@@ -75,19 +75,19 @@ export function convertTextToHTML(text) {
         const processedContent = content
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             .replace(/\*(.*?)\*/g, "<em>$1</em>");
-        return `<ol class="level-${level}"><li>${processedContent}</li></ol>`;
+        return `<ol class='level-${level}'><li>${processedContent}</li></ol>`;
     });
 
     // Agrupa listas consecutivas
     html = html.replace(/<\/(ul|ol)>\s*<\1 class=".*?">/g, "");
 
     // Substitui quebras de linha por <br>, exceto dentro de tags block-level específicas
-    html = html.replace(/\n(?!<\/?(ul|ol|li|h1|h2|h3|h4|h5|h6|pre|code|table|thead|tbody|tr|th|td)>)/g, "<br>");
+    //html = html.replace(/\n(?!<\/?(ul|ol|li|h1|h2|h3|h4|h5|h6|pre|code|table|thead|tbody|tr|th|td)>)/g, "<br>");
 
     // Reinsere blocos de código
     html = html.replace(/@@CODE_BLOCK_(\d+)@@/g, (match, index) => {
         const { language, code } = codeBlocks[Number(index)];
-        const langClass = language ? ` class="language-${language}"` : "";
+        const langClass = language ? ` class='language-${language}'` : "";
         const escapedCode = code
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -95,7 +95,38 @@ export function convertTextToHTML(text) {
         return `<pre><code${langClass}>${escapedCode}</code></pre>`;
     });
 
+    // Links - [texto](url)
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
     return html;
+}
+
+export function convertTextToHTMLTokens(text) {
+    // Primeira etapa: detectar e converter tabelas
+    let ret = [];
+    let html = convertTextToHTML(text);
+
+    // Split the HTML by tags to preserve tag structure
+    const parts = html.split(/(<[^>]*>)/g);
+    
+    // Process each part
+    for (let part of parts) {
+        part = part.trim();
+        if (!part) continue;
+        
+        // If it's an HTML tag, add it as a single token
+        if (part.startsWith('<') && part.endsWith('>')) {
+            ret.push(part);
+        } else {
+            // For text content, split into words and add each as a token
+            const words = part.split(/\s+/);
+            for (let word of words) {
+                if (word) ret.push(word);
+            }
+        }
+    }
+    
+    return ret;
 }
 
 // Função auxiliar para verificar se uma linha é um cabeçalho de tabela Markdown
