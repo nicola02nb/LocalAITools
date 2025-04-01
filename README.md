@@ -23,7 +23,7 @@ Navigate to Chrome flags (`chrome://flags`) and enable:
 - [Optimization on-device model](chrome://flags/#optimization-guide-on-device-model)
 - [LanguageModel API](chrome://flags/#prompt-api-for-gemini-nano-multimodal-input)
 - [Summarizer API](chrome://flags/#summarization-api-for-gemini-nano)
-- [Translator API](chrome://flags/#translation-api)(Set to *without language pack limit*)
+- [Translator API](chrome://flags/#translation-api) ([Bypass language restrictions](https://developer.chrome.com/docs/ai/translator-api#bypass_language_restrictions_for_local_testing))
 - [Language Detection API](chrome://flags/#language-detection-api)
 - [Writer API](chrome://flags/#writer-api-for-gemini-nano)
 - [Rewriter API](chrome://flags/#rewriter-api-for-gemini-nano)

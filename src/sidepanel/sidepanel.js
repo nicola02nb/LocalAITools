@@ -190,7 +190,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const lmForm = document.getElementById('lm-form');
     lmForm.addEventListener('submit', async function(event) {
         event.preventDefault();
-        updateTokensStatus();
         const formData = new FormData(event.target);
         let text = '';
         formData.forEach((value, key) => {
