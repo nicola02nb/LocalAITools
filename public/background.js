@@ -49,10 +49,14 @@ const menuItems = [
   { id: "rewriter", title: "Rewrite" },
 ];
 
-menuItems.forEach(({ id, title }) => {
-  chrome.contextMenus.create({
-    id: id,
-    title: title,
-    contexts: ["selection"],
+chrome.runtime.onInstalled.addListener(() => {
+  menuItems.forEach(({ id, title }) => {
+    chrome.contextMenus.create({
+      id: id,
+      title: title,
+      contexts: ["selection"],
+    });
   });
 });
+
+
