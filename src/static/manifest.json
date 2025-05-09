@@ -1,0 +1,30 @@
+{
+  "name": "Gemini Nano AI Tools",
+  "version": "0.1.0",
+  "manifest_version": 3,
+  "description": "A Chrome extension to chat with the Nano AI built into Chrome.",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "sidePanel",
+    "activeTab",
+    "scripting",
+    "contextMenus",
+    "storage"
+  ],
+  "minimum_chrome_version": "131",
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "commands": {
+    "toggle_side_panel": {
+      "suggested_key": "Ctrl+Shift+V",
+      "description": "Toggle the side panel"
+    }
+  },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["page.js"]
+  }]
+}
