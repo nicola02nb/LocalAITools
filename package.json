@@ -19,6 +19,8 @@
     "vite-plugin-static-copy": "^2.3.0"
   },
   "dependencies": {
+    "@types/chrome": "^0.0.321",
+    "@types/node": "^22.15.17",
     "marked": "^15.0.7",
     "marked-highlight": "^2.2.1"
   }

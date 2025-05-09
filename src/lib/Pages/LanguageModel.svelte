@@ -1,7 +1,7 @@
 <script lang="ts">
     import { settings, inputs, generalSettings } from "./shared";
     import Title from "./Components/Title.svelte";
-    import { NanoAILanguageModel } from "../../api/nano-ai";
+    import { NanoAILanguageModel } from "../api/nano-ai";
     import Output from "./Components/Output.svelte";
     import { marked } from "marked";
 

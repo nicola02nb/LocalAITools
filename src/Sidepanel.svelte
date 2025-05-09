@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { activeTab, inputs, settings, generalSettings } from "./lib/Components/Tabs/shared";
-  import Home from "./lib/Components/Tabs/Home.svelte";
-  import LanguageDetector from "./lib/Components/Tabs/LanguageDetector.svelte";
-  import LanguageModel from "./lib/Components/Tabs/LanguageModel.svelte";
-  import Settings from "./lib/Components/Tabs/Settings.svelte";
-  import Summarizer from "./lib/Components/Tabs/Summarizer.svelte";
-  import Writer from "./lib/Components/Tabs/Writer.svelte";
-  import Rewriter from "./lib/Components/Tabs/Rewriter.svelte";
-  import Translate from "./lib/Components/Tabs/Translate.svelte";
+  import { activeTab, inputs, settings, generalSettings } from "./lib/Pages/shared";
+  import Home from "./lib/Pages/Home.svelte";
+  import LanguageDetector from "./lib/Pages/LanguageDetector.svelte";
+  import LanguageModel from "./lib/Pages/LanguageModel.svelte";
+  import Settings from "./lib/Pages/Settings.svelte";
+  import Summarizer from "./lib/Pages/Summarizer.svelte";
+  import Writer from "./lib/Pages/Writer.svelte";
+  import Rewriter from "./lib/Pages/Rewriter.svelte";
+  import Translate from "./lib/Pages/Translate.svelte";
 
   const tabs = ['home', 'lm', 'summarizer', 'detector', 'translate', 'writer', 'rewriter', 'settings'];
 </script>

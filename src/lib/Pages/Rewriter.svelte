@@ -1,6 +1,6 @@
 <script lang="ts">
     import Title from "./Components/Title.svelte";
-    import { NanoAIRewriter } from "../../api/nano-ai";
+    import { NanoAIRewriter } from "../api/nano-ai";
     import Output from "./Components/Output.svelte";
     import { marked } from "marked";
     import { inputs, settings, generalSettings } from './shared';

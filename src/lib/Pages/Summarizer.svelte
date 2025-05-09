@@ -1,6 +1,6 @@
 <script lang="ts">
     import Title from "./Components/Title.svelte";
-    import { NanoAIWriter } from "../../api/nano-ai";
+    import { NanoAISummarizer } from "../api/nano-ai";
     import Output from "./Components/Output.svelte";
     import { marked } from "marked";
     import { inputs, settings, generalSettings } from './shared';
@@ -13,14 +13,24 @@
         placeholder: "Enter shared context...",
         required: false,
     },{
-        name: "tone",
-        label: "Tone:",
+        name: "type",
+        label: "Type:",
         type: "select",
-        value: "neutral",
+        value: "key-points",
         options: [
-            { value: "formal", label: "Formal" },
-            { value: "neutral", label: "Neutral" },
-            { value: "casual", label: "Casual" },
+            { value: "key-points", label: "Key Points" },
+            { value: "tl;dr", label: "TL;DR" },
+            { value: "teaser", label: "Teaser" },
+            { value: "headline", label: "Headline" },
+        ],
+    },{
+        name: "format",
+        label: "Format:",
+        type: "select",
+        value: "plain-text",
+        options: [
+            { value: "plain-text", label: "Plain Text" },
+            { value: "markdown", label: "Markdown" },
         ],
     },{
         name: "length",
@@ -32,42 +42,39 @@
             { value: "medium", label: "Medium" },
             { value: "long", label: "Long" },
         ],
-    },{
-        name: "format",
-        label: "Format:",
-        type: "select",
-        value: "plain-text",
-        options: [
-            { value: "plain-text", label: "Plain Text" },
-            { value: "markdown", label: "Markdown" },
-        ],
     }];
 
     const templateInputs = [{
-        name: "writer-text",
-        label: "Text to write:",
+        name: "context",
+        label: "Context:",
         type: "text",
-        value: "",
-        placeholder: "Enter text to write...",
+        placeholder: "Enter context...",
+        required: false,
+    },    
+    {
+        name: "summarizer-text",
+        label: "Text to summarize:",
+        type: "text",
+        placeholder: "Enter text to summarize...",
         required: true,
     }];
     
-    const WRITER = new NanoAIWriter();
+    const SUMMARIZER = new NanoAISummarizer();
     let output = $state("");
     let elaborating = $state(false);
 
     $effect(() => {
         output = "";
-        WRITER.reInit($settings["translate"]);
+        SUMMARIZER.reInit($settings["summarizer"]);
     });
 
     let submit = async (e: Event) => {
-        let input = $inputs["translate"];
-        const message = input["translate-text"];
+        let input = $inputs["summarizer"];
+        const message = input["summarizer-text"];
         output = "";
         elaborating = true;
         if ($generalSettings.streamOutput) {
-            let stream = WRITER.writeStreaming(message);
+            let stream = SUMMARIZER.summarizeStreaming(message);
 
             let res = "";
             for await (const chunk of stream) {
@@ -76,12 +83,12 @@
                 await new Promise(resolve => setTimeout(resolve, $generalSettings.delayForStream));
             }
         } else {
-            let res = await WRITER.write(message);
+            let res = await SUMMARIZER.summarize(message);
             output = await marked(res);
         }
         elaborating = false;
     };
 </script>
 
-<Title title="Translator" tabName="translate" settingsInit={templateSettings} inputsInit={templateInputs} submit={submit}/>
+<Title title="Summarizer" tabName="summarizer" settingsInit={templateSettings} inputsInit={templateInputs} submit={submit}/>
 <Output content={output} elaborating={elaborating} />

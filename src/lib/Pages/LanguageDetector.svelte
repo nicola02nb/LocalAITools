@@ -1,6 +1,6 @@
 <script lang="ts">
     import Title from "./Components/Title.svelte";
-    import { NanoAILanguageDetector } from "../../api/nano-ai";
+    import { NanoAILanguageDetector } from "../api/nano-ai";
     import Output from "./Components/Output.svelte";
     import { inputs, settings } from './shared';
 
