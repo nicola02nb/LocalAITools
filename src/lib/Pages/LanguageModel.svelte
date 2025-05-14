@@ -8,7 +8,7 @@
     const templateSettings = [{
         name: "temperature",
         label: "Temperature:",
-        type: "number",
+        type: "range",
         value: 1,
         step: 0.1,
         min: 0,
@@ -16,7 +16,7 @@
     },{
         name: "topK",
         label: "Top K:",
-        type: "number",
+        type: "range",
         value: 3,
         step: 1,
         min: 1,

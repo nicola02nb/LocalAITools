@@ -121,6 +121,7 @@
         height: fit-content;
         border-radius: 50%;
         padding: 2px 2px 0 2px;
+        margin: 5px;
     }
 
     .options-button:hover {
