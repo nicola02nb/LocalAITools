@@ -3,7 +3,15 @@ import { writable } from "svelte/store";
 export const activeTab = writable<string>("home");
 
 interface Settings {
-  [key: string]: object | string | number | boolean;
+  [key: string]: string | number | boolean ;
+}
+interface GeneralSettings {
+  streamOutput: boolean;
+  delayForStream: number;
+}
+
+interface Input {
+  [key: string]: string;
 }
 
 export const generalSettings = writable<Settings>({
@@ -11,7 +19,7 @@ export const generalSettings = writable<Settings>({
   delayForStream: 25,
 });
 export const settings = writable<{ [key: string]: Settings }>({});
-export const inputs = writable<{ [key: string]: string }>({});
+export const inputs = writable<{ [key: string]: Input }>({});
 
 if (chrome?.storage?.local) {
   chrome.storage.local.get("activeTab").then((result) => {
@@ -45,7 +53,10 @@ if (chrome?.storage?.local) {
     function (request, sender, sendResponse) {
       const action: string = request.action;
       activeTab.set(action);
-      inputs.set({ ...inputs, [action]: { [action + "-text"]: request.text } });
+      inputs.update(currentInputs => ({
+        ...currentInputs,
+        [action]: request.text
+      }));
       sendResponse({ status: "success" });
     },
   );

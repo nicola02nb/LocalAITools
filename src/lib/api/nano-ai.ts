@@ -12,7 +12,7 @@ interface Prompt {
 }
 
 interface NanoAIServiceOptions {
-  [key: string]: string | number | Prompt[] | undefined;
+  [key: string]: Prompt[] | string | number | boolean | undefined;
 }
 
 export class NanoAIService {
@@ -79,6 +79,7 @@ export class NanoAIService {
   abort(message: string = "Aborted") {
     if (this.controller) {
       this.controller.abort(message);
+      this.controller = new AbortController();
     }
   }
 

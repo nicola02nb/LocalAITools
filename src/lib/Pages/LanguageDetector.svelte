@@ -27,7 +27,7 @@
     let submit = async (e: Event) => {
         output = "";
         elaborating = true;
-        const res = await LANGUAGE_DETECTOR.detect($inputs["detector-text"]);
+        const res = await LANGUAGE_DETECTOR.detect($inputs[""]["detector-text"]);
         output = `<table><tr><th>Language</th><th>Confidence</th></tr>`;
         res.forEach((item: { detectedLanguage: string, confidence: number}) => {
             output += `<tr><td>${item.detectedLanguage}</td><td>${(item.confidence*100).toFixed(2)}%</td></tr>`;
