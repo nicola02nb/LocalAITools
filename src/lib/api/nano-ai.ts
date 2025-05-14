@@ -15,28 +15,34 @@ interface NanoAIServiceOptions {
   [key: string]: Prompt[] | string | number | boolean | undefined;
 }
 
-export class NanoAIService {
+interface NanoAIService {
+  [key: string]: any;
+}
+
+export class NanoAIBase {
   serviceType: string;
   exists: boolean;
   availability: Promise<string> | string;
   options: NanoAIServiceOptions;
 
-  controller: AbortController;
-  service: any;
+  controller!: AbortController;
+  service: NanoAIService | undefined;
 
-  call?: (...args: any[]) => Promise<any>;
-  callStream?: (...args: any[]) => any;
+  call?: (...args: string[]) => Promise<string>;
+  callStream?: (...args: string[]) => ReadableStream<Promise<string>>;
 
   constructor(serviceType: string, options: NanoAIServiceOptions = {}) {
     this.serviceType = serviceType;
     this.exists = false;
     this.options = options;
+    this.controller = new AbortController();
     if (serviceType in self) {
       this.exists = true;
       this.availability = (self as any)[this.serviceType].availability();
-      this.controller = new AbortController();
+      this.init();
     } else {
-      throw new Error(`The ${serviceType} API is not available.`);
+      this.availability = "unavailable";
+      console.error(`The ${serviceType} API is not available.`);
     }
   }
 
@@ -91,7 +97,7 @@ export class NanoAIService {
   }
 }
 
-export class NanoAILanguageModel extends NanoAIService {
+export class NanoAILanguageModel extends NanoAIBase {
   constructor(
     options: NanoAIServiceOptions = {
       topK: 3,
@@ -112,26 +118,26 @@ export class NanoAILanguageModel extends NanoAIService {
   }
 
   async prompt(message: string) {
-    return await this.service.prompt(message, {
+    return await this.service?.prompt(message, {
       signal: this.controller.signal,
     });
   }
 
   promptStreaming(message: string) {
-    return this.service.promptStreaming(message, {
+    return this.service?.promptStreaming(message, {
       signal: this.controller.signal,
     });
   }
 
   measureInputUsage(text: string) {
-    return this.service.measureInputUsage(text);
+    return this.service?.measureInputUsage(text);
   }
 
   getTokensStatus() {
     return {
-      used: this.service.inputUsage,
-      left: this.service.inputQuota - this.service.inputUsage,
-      max: this.service.inputQuota,
+      used: this.service?.inputUsage,
+      left: this.service?.inputQuota - this.service?.inputUsage,
+      max: this.service?.inputQuota,
     };
   }
 
@@ -151,7 +157,7 @@ export class NanoAILanguageModel extends NanoAIService {
   }
 }
 
-export class NanoAISummarizer extends NanoAIService {
+export class NanoAISummarizer extends NanoAIBase {
   constructor(
     options: NanoAIServiceOptions = {
       sharedContext: "",
@@ -175,11 +181,11 @@ export class NanoAISummarizer extends NanoAIService {
   }
 
   async summarize(text: string, context: string = "") {
-    return await this.service.summarize(text, { context });
+    return await this.service?.summarize(text, { context });
   }
 
   summarizeStreaming(text: string, context: string = "") {
-    return this.service.summarizeStreaming(text, { context });
+    return this.service?.summarizeStreaming(text, { context });
   }
 
   setSharedContext(sharedContext: string) {
@@ -200,18 +206,18 @@ export class NanoAISummarizer extends NanoAIService {
   }
 }
 
-export class NanoAILanguageDetector extends NanoAIService {
+export class NanoAILanguageDetector extends NanoAIBase {
   constructor() {
     super("LanguageDetector");
     this.call = this.detect;
   }
 
   async detect(text: string) {
-    return await this.service.detect(text);
+    return await this.service?.detect(text);
   }
 }
 
-export class NanoAITranslator extends NanoAIService {
+export class NanoAITranslator extends NanoAIBase {
   constructor(
     options: NanoAIServiceOptions = {
       sourceLanguage: "auto",
@@ -224,19 +230,19 @@ export class NanoAITranslator extends NanoAIService {
   }
 
   getSupportedLanguages() {
-    return this.service.languages;
+    return this.service?.languages;
   }
 
   async translate(text: string) {
-    return await this.service.translate(text);
+    return await this.service?.translate(text);
   }
 
   translateStreaming(text: string) {
-    return this.service.translateStreaming(text);
+    return this.service?.translateStreaming(text);
   }
 }
 
-export class NanoAIWriter extends NanoAIService {
+export class NanoAIWriter extends NanoAIBase {
   constructor(
     options: NanoAIServiceOptions = { tone: "formal", length: "long" },
   ) {
@@ -246,11 +252,11 @@ export class NanoAIWriter extends NanoAIService {
   }
 
   async write(text: string) {
-    return await this.service.write(text);
+    return await this.service?.write(text);
   }
 
   writeStreaming(text: string) {
-    return this.service.writeStreaming(text);
+    return this.service?.writeStreaming(text);
   }
 
   setTone(tone: string) {
@@ -263,7 +269,7 @@ export class NanoAIWriter extends NanoAIService {
   }
 }
 
-export class NanoAIRewriter extends NanoAIService {
+export class NanoAIRewriter extends NanoAIBase {
   constructor(options: NanoAIServiceOptions = { sharedContext: "" }) {
     super("Rewriter", options);
     this.call = this.rewrite;
@@ -271,11 +277,11 @@ export class NanoAIRewriter extends NanoAIService {
   }
 
   async rewrite(text: string) {
-    return await this.service.rewrite(text);
+    return await this.service?.rewrite(text);
   }
 
   rewriteStreaming(text: string) {
-    return this.service.rewriteStreaming(text);
+    return this.service?.rewriteStreaming(text);
   }
 
   setSharedContext(sharedContext: string) {

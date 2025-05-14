@@ -69,21 +69,21 @@
     });
 
     let submit = async (e: Event) => {
-        let input = $inputs["summarizer"];
-        const message = input["summarizer-text"];
+        const input = $inputs["summarizer"];
+        const text = input["summarizer-text"];
         output = "";
         elaborating = true;
         if ($generalSettings.streamOutput) {
-            let stream = SUMMARIZER.summarizeStreaming(message);
+            let stream = SUMMARIZER.summarizeStreaming(text);
 
             let res = "";
             for await (const chunk of stream) {
                 res += chunk;
                 output = await marked(res);
-                await new Promise(resolve => setTimeout(resolve, $generalSettings.delayForStream));
+                await new Promise(resolve => setTimeout(resolve, Number($generalSettings.delayForStream)));
             }
         } else {
-            let res = await SUMMARIZER.summarize(message);
+            let res = await SUMMARIZER.summarize(text);
             output = await marked(res);
         }
         elaborating = false;

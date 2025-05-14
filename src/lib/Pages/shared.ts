@@ -3,11 +3,7 @@ import { writable } from "svelte/store";
 export const activeTab = writable<string>("home");
 
 interface Settings {
-  [key: string]: string | number | boolean ;
-}
-interface GeneralSettings {
-  streamOutput: boolean;
-  delayForStream: number;
+  [key: string]: string | number | boolean;
 }
 
 interface Input {
@@ -53,9 +49,9 @@ if (chrome?.storage?.local) {
     function (request, sender, sendResponse) {
       const action: string = request.action;
       activeTab.set(action);
-      inputs.update(currentInputs => ({
+      inputs.update((currentInputs) => ({
         ...currentInputs,
-        [action]: request.text
+        [action]: request.text,
       }));
       sendResponse({ status: "success" });
     },

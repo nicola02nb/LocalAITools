@@ -1,22 +1,30 @@
 <script lang="ts">
-    export let content = "";
-    export let messages: { role: string; content: string }[] = [];
-    export let elaborating = true;
+
+    let { content = "", messages = [], elaborating = true } = $props();
+
+    $effect(() => {
+        if (!elaborating){
+            const loaders = document.getElementsByClassName("loader");
+            for (const loader of loaders) {
+                loader.remove();
+            }
+        }
+    });
 </script>
 
 <div class="output scrollable">
     {#if messages.length > 0}
-        {#each messages as message}
+        {#each messages as message, index (index)}
             <div class="message {message.role}">
                 {#if message.role === "lm"}
-                    <div class:loader={elaborating}></div>
+                    <div class="loader" class:loading={elaborating}></div>
                 {/if}
                 <div>{@html message.content}</div>
             </div>
         {/each}
     {:else}
-        <div class:loader={elaborating}></div>
-        {@html content}
+        <div class="loader" class:loading={elaborating}></div>
+        <div>{@html content}</div>
     {/if}
 </div>
 
@@ -31,7 +39,7 @@
     .output {
         border-radius: 10px;
     }
-    .output:last-child .message > .loader {
+    .output:last-child .message > .loader.loading {
         width: 1rem;
         padding: 8px;
         aspect-ratio: 1;

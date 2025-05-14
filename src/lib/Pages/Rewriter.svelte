@@ -63,21 +63,21 @@
     });
 
     let submit = async (e: Event) => {
-        let input = $inputs["rewriter"];
-        const message = input["rewriter-text"];
+        const input = $inputs["rewriter"];
+        const text = input["rewriter-text"];
         output = "";
         elaborating = true;
         if ($generalSettings.streamOutput) {
-            let stream = REWRITER.rewriteStreaming(message);
+            let stream = REWRITER.rewriteStreaming(text);
 
             let res = "";
             for await (const chunk of stream) {
                 res += chunk;
                 output = await marked(res);
-                await new Promise(resolve => setTimeout(resolve, $generalSettings.delayForStream));
+                await new Promise(resolve => setTimeout(resolve, Number($generalSettings.delayForStream)));
             }
         } else {
-            let res = await REWRITER.rewrite(message);
+            let res = await REWRITER.rewrite(text);
             output = await marked(res);
         }
         elaborating = false;

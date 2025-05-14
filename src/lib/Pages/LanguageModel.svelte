@@ -9,7 +9,7 @@
         name: "temperature",
         label: "Temperature:",
         type: "number",
-        value: 0.7,
+        value: 1,
         step: 0.1,
         min: 0,
         max: 2,
@@ -42,25 +42,25 @@
     });
 
     let submit = async (e: Event) => {
-        let input = $inputs["lm"];
-        templateInputs[0].value = input["lm-text"];
-        elaborating = true;
-        const message = input["lm-text"];
+        const input = $inputs["lm"];
+        const text = input["lm-text"];
         const target = e.target as HTMLFormElement;
         target.reset();
-        messages.push({ role: "user", content: message });
+        messages.push({ role: "user", content: text });
         messages.push({ role: "lm", content: "" });
+        elaborating = true;
         if ($generalSettings.streamOutput) {
-            let stream = LANGUAGE_MODEL.promptStreaming(message);
+            
+            let stream = LANGUAGE_MODEL.promptStreaming(text);
 
             let res = "";
             for await (const chunk of stream) {
                 res += chunk;
                 messages[messages.length-1] = { role: "lm", content: await marked(res) };
-                await new Promise(resolve => setTimeout(resolve, $generalSettings.delayForStream));
+                await new Promise(resolve => setTimeout(resolve, Number($generalSettings.delayForStream)));
             }
         } else {
-            let res = await LANGUAGE_MODEL.prompt(message);
+            let res = await LANGUAGE_MODEL.prompt(text);
             messages[messages.length-1].content = await marked(res);
         }
         elaborating = false;

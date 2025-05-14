@@ -13,7 +13,7 @@
 </script>
 
 <main>
-  {#if process.env.NODE_ENV === 'development'}
+  {#if process.env.NODE_ENV === 'development' && false}
     <div>{JSON.stringify($generalSettings)}</div>
     <div>{JSON.stringify($inputs)}</div>
     <div>{JSON.stringify($settings)}</div>
@@ -49,8 +49,29 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@100..900&display=swap');
 
-* {
-  font-family: 'League Spartan', sans-serif;
+:root {
+  font-family: 'League Spartan', Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  --primary-color: #242424;
+  --secondary-color: #f1f1f1;
+
+  color-scheme: light dark;
+  color: var(--secondary-color);
+  background-color: var(--primary-color);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --primary-color: #f1f1f1;
+    --secondary-color: #242424;
+  }
 }
 
 .tab-container {

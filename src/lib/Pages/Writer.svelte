@@ -62,21 +62,21 @@
     });
 
     let submit = async (e: Event) => {
-        let input = $inputs["writer"];
-        const message = input["writer-text"];
+        const input = $inputs["writer"];
+        const text = input["writer-text"];
         output = "";
         elaborating = true;
         if ($generalSettings.streamOutput) {
-            let stream = WRITER.writeStreaming(message);
+            let stream = WRITER.writeStreaming(text);
 
             let res = "";
             for await (const chunk of stream) {
                 res += chunk;
                 output = await marked(res);
-                await new Promise(resolve => setTimeout(resolve, $generalSettings.delayForStream));
+                await new Promise(resolve => setTimeout(resolve, Number($generalSettings.delayForStream)));
             }
         } else {
-            let res = await WRITER.write(message);
+            let res = await WRITER.write(text);
             output = await marked(res);
         }
         elaborating = false;

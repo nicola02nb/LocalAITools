@@ -26,21 +26,21 @@
     });
 
     let submit = async (e: Event) => {
-        let input = $inputs["translate"];
-        const message = input["translate-text"];
+        const input = $inputs["translate"];
+        const text = input["translate-text"];
         output = "";
         elaborating = true;
         if ($generalSettings.streamOutput) {
-            let stream = TRANSLATER.translateStreaming(message);
+            let stream = TRANSLATER.translateStreaming(text);
 
             let res = "";
             for await (const chunk of stream) {
                 res += chunk;
                 output = await marked(res);
-                await new Promise(resolve => setTimeout(resolve, $generalSettings.delayForStream));
+                await new Promise(resolve => setTimeout(resolve, Number($generalSettings.delayForStream)));
             }
         } else {
-            let res = await TRANSLATER.translate(message);
+            let res = await TRANSLATER.translate(text);
             output = await marked(res);
         }
         elaborating = false;

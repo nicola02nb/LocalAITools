@@ -2,17 +2,20 @@
     import { settings, inputs } from "../shared";
     import Input from "./Input.svelte";
     
-    import type { NanoAIService } from "../../api/nano-ai";
+    import type { NanoAIBase } from "../../api/nano-ai";
     
     let { title, tabName, settingsInit, inputsInit, submit, ai } = $props();
 
-    ai = ai as NanoAIService;
+    ai = ai as NanoAIBase;
 
     let isAvaliable = $state("unavailable");    
 
-    ai.availability?.then((res: string) => {
-        isAvaliable = res;
-    });
+    if ( ai.availability.then) {
+        ai.availability?.then((res: string) => {
+            isAvaliable = res;
+        });
+    }
+    
 
     let optionsOpen = $state(true);
 
