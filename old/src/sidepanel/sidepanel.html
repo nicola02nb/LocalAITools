@@ -1,139 +1,203 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>NanoAI Sidepanel</title>
-    <link rel="stylesheet" type="text/css" href="sidepanel.css">
+    <link rel="stylesheet" type="text/css" href="sidepanel.css" />
 
     <script src="sidepanel.js" type="module"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="tab-container">
-        <div id="tab-buttons">
+      <div id="tab-buttons"></div>
+      <div class="tab-content">
+        <div class="tab-pane" id="home"></div>
+        <div class="tab-pane" id="lm">
+          <h3>Language Model</h3>
+          <button class="options-button"><div class="gear"></div></button>
+          <br />
+          <div class="options hidden">
+            <h4>Options</h4>
+            <label for="lm-temperature">Temp:</label>
+            <input
+              id="lm-temperature"
+              type="number"
+              name="temperature"
+              value="0.7"
+              step="0.1"
+              min="0"
+              max="2"
+            />
+            <br />
+            <label for="lm-topk">Top-k:</label>
+            <input
+              id="lm-topk"
+              type="number"
+              name="topK"
+              value="3"
+              step="1"
+              min="1"
+              max="8"
+            />
+            <p>
+              Tokens (used/max):<br />
+              <span id="lm-tokens-used">0</span>/<span id="lm-tokens-max"
+                >0</span
+              >
+            </p>
+          </div>
+          <hr />
+          <form id="lm-form">
+            <label for="lm-text">Message:</label>
+            <input
+              id="lm-text"
+              type="text"
+              name="text"
+              placeholder="Type your message here..."
+              required
+            />
+            <input type="submit" value="Send" />
+            <input type="reset" value="Stop" />
+          </form>
+          <div id="lm-messages"></div>
         </div>
-        <div class="tab-content">
-            <div class="tab-pane" id="home"></div>
-            <div class="tab-pane" id="lm">
-                <h3>Language Model</h3>
-                <button class="options-button"><div class="gear"></div></button>
-                <br>
-                <div class="options hidden">
-                    <h4>Options</h4>
-                    <label for="lm-temperature">Temp:</label>
-                    <input id="lm-temperature" type="number" name="temperature" value="0.7" step="0.1" min="0" max="2">
-                    <br>
-                    <label for="lm-topk">Top-k:</label>
-                    <input id="lm-topk" type="number" name="topK" value="3" step="1" min="1" max="8">
-                    <p>
-                        Tokens (used/max):<br>
-                        <span id="lm-tokens-used">0</span>/<span id="lm-tokens-max">0</span>
-                    </p>
-                </div>
-                <hr>
-                <form id="lm-form">
-                    <label for="lm-text">Message:</label>
-                    <input id="lm-text" type="text" name="text" placeholder="Type your message here..." required>
-                    <input type="submit" value="Send">
-                    <input type="reset" value="Stop">                       
-                </form>
-                <div id="lm-messages"></div>
-            </div>
 
-            <div class="tab-pane" id="summarizer">
-                <h3>Summarizer</h3>
-                <button class="options-button"><div class="gear"></div></button>
-                <br>
-                <div class="options hidden">
-                    <h4>Options</h4>
-                    <label for="summarizer-sharedContext">Shared Context:</label>
-                    <input id="summarizer-sharedContext" type="text" name="sharedContext" placeholder="Type your message here..." required>
-                    <br>
-                    <label for="summarizer-type">Type:</label>
-                    <select id="summarizer-type" name="type">
-                        <option value="key-points">Key Points</option>
-                        <option value="tl;dr">TL;DR</option>
-                        <option value="teaser">Teaser</option>
-                        <option value="headline">Headline</option>
-                    </select>
-                    <br>
-                    <label for="summarizer-format">Format:</label>
-                    <select id="summarizer-format" name="format">
-                        <option value="plain-text">Plain-Text</option>
-                        <option value="markdown">Markdown</option>
-                    </select>
-                    <br>
-                    <label for="summarizer-length">Length:</label>
-                    <select id="summarizer-length" name="length">
-                        <option value="short">Short</option>
-                        <option value="medium">Medium</option>
-                        <option value="long">Long</option>
-                    </select>
-                </div>
-                <hr>
-                <form id="summarizer-form">
-                    <label for="summarizer-context">Context:</label>
-                    <input id="summarizer-context" type="text" name="context" placeholder="Add additionalcontext here...">
-                    <br>
-                    <label for="summarizer-text">Text:</label>
-                    <input id="summarizer-text" type="text" name="text" placeholder="Type your message here..." required>
-                    <br>
-                    <input type="submit" value="Summarize">
-                </form>
-                <div id="summarizer-message"></div>
-            </div>
-
-            <div class="tab-pane" id="detector">
-                <h3>Language Detector</h3>
-                <br>
-                <hr>
-                <form id="detector-form">
-                    <label for="detector-text">Text:</label>
-                    <input id="detector-text" type="text" name="text" placeholder="Type your message here..." required>
-                    <br>
-                    <input type="submit" value="Detect">
-                </form>
-            </div>
-
-            <div class="tab-pane" id="translate">
-                <h3>Translator</h3>
-                <button class="options-button">Settings</button>
-                <br>
-                <div class="options hidden">
-                    <h4>Options</h4>
-                    <label for="translate-from">From:</label>
-                    <select id="translate-from" name="from">
-                        <option value="auto">Auto</option>
-                        <option value="en">English</option>
-                        <option value="es">Spanish</option>
-                        <option value="fr">French</option>
-                        <!-- Add more languages as needed -->
-                    </select>
-                    <br>
-                    <label for="translate-to">To:</label>
-                    <select id="translate-to" name="to">
-                        <option value="en">English</option>
-                        <option value="es">Spanish</option>
-                        <option value="fr">French</option>
-                        <!-- Add more languages as needed -->
-                    </select>
-                </div>
-                <hr>
-                <form id="translate-form">
-                    <label for="translate-text">Text:</label>
-                    <input id="translate-text" type="text" name="text" placeholder="Type your message here..." required>
-                    <br>
-                    <input type="submit" value="Translate">
-                </form>
-                <div id="translate-message"></div>
-            </div>
-
-            <div class="tab-pane" id="settings">
-                <label for="streamOutput">Output streamed:</label>
-                <input id="streamOutput" type="checkbox" name="streamOutput" checked>
-                <br>
-                <label for="delayForStream">Delay for stream(ms):</label>
-                <input id="delayForStream" type="number" name="delayForStream" value="25" step="25" min="0">
-            </div>
+        <div class="tab-pane" id="summarizer">
+          <h3>Summarizer</h3>
+          <button class="options-button"><div class="gear"></div></button>
+          <br />
+          <div class="options hidden">
+            <h4>Options</h4>
+            <label for="summarizer-sharedContext">Shared Context:</label>
+            <input
+              id="summarizer-sharedContext"
+              type="text"
+              name="sharedContext"
+              placeholder="Type your message here..."
+              required
+            />
+            <br />
+            <label for="summarizer-type">Type:</label>
+            <select id="summarizer-type" name="type">
+              <option value="key-points">Key Points</option>
+              <option value="tl;dr">TL;DR</option>
+              <option value="teaser">Teaser</option>
+              <option value="headline">Headline</option>
+            </select>
+            <br />
+            <label for="summarizer-format">Format:</label>
+            <select id="summarizer-format" name="format">
+              <option value="plain-text">Plain-Text</option>
+              <option value="markdown">Markdown</option>
+            </select>
+            <br />
+            <label for="summarizer-length">Length:</label>
+            <select id="summarizer-length" name="length">
+              <option value="short">Short</option>
+              <option value="medium">Medium</option>
+              <option value="long">Long</option>
+            </select>
+          </div>
+          <hr />
+          <form id="summarizer-form">
+            <label for="summarizer-context">Context:</label>
+            <input
+              id="summarizer-context"
+              type="text"
+              name="context"
+              placeholder="Add additionalcontext here..."
+            />
+            <br />
+            <label for="summarizer-text">Text:</label>
+            <input
+              id="summarizer-text"
+              type="text"
+              name="text"
+              placeholder="Type your message here..."
+              required
+            />
+            <br />
+            <input type="submit" value="Summarize" />
+          </form>
+          <div id="summarizer-message"></div>
         </div>
+
+        <div class="tab-pane" id="detector">
+          <h3>Language Detector</h3>
+          <br />
+          <hr />
+          <form id="detector-form">
+            <label for="detector-text">Text:</label>
+            <input
+              id="detector-text"
+              type="text"
+              name="text"
+              placeholder="Type your message here..."
+              required
+            />
+            <br />
+            <input type="submit" value="Detect" />
+          </form>
+        </div>
+
+        <div class="tab-pane" id="translate">
+          <h3>Translator</h3>
+          <button class="options-button">Settings</button>
+          <br />
+          <div class="options hidden">
+            <h4>Options</h4>
+            <label for="translate-from">From:</label>
+            <select id="translate-from" name="from">
+              <option value="auto">Auto</option>
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <!-- Add more languages as needed -->
+            </select>
+            <br />
+            <label for="translate-to">To:</label>
+            <select id="translate-to" name="to">
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <!-- Add more languages as needed -->
+            </select>
+          </div>
+          <hr />
+          <form id="translate-form">
+            <label for="translate-text">Text:</label>
+            <input
+              id="translate-text"
+              type="text"
+              name="text"
+              placeholder="Type your message here..."
+              required
+            />
+            <br />
+            <input type="submit" value="Translate" />
+          </form>
+          <div id="translate-message"></div>
+        </div>
+
+        <div class="tab-pane" id="settings">
+          <label for="streamOutput">Output streamed:</label>
+          <input
+            id="streamOutput"
+            type="checkbox"
+            name="streamOutput"
+            checked
+          />
+          <br />
+          <label for="delayForStream">Delay for stream(ms):</label>
+          <input
+            id="delayForStream"
+            type="number"
+            name="delayForStream"
+            value="25"
+            step="25"
+            min="0"
+          />
+        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

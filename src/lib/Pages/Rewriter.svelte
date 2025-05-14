@@ -84,5 +84,5 @@
     };
 </script>
 
-<Title title="Rewriter" tabName="rewriter" settingsInit={templateSettings} inputsInit={templateInputs} submit={submit}/>
+<Title title="Rewriter" ai={REWRITER} tabName="rewriter" settingsInit={templateSettings} inputsInit={templateInputs} submit={submit}/>
 <Output content={output} elaborating={elaborating}/>

@@ -14,7 +14,7 @@
         min: 0,
         max: 2,
     },{
-        name: "topk",
+        name: "topK",
         label: "Top K:",
         type: "number",
         value: 3,
@@ -32,13 +32,13 @@
         required: true,
     }];
     
-    const LM = new NanoAILanguageModel();
+    const LANGUAGE_MODEL = new NanoAILanguageModel();
     let messages: {role :string, content: string}[]= $state([]);
     let elaborating = $state(false);
 
     $effect(() => {
         messages = [];
-        LM.reInit($settings["lm"]);
+        LANGUAGE_MODEL.reInit($settings["lm"]);
     });
 
     let submit = async (e: Event) => {
@@ -51,7 +51,7 @@
         messages.push({ role: "user", content: message });
         messages.push({ role: "lm", content: "" });
         if ($generalSettings.streamOutput) {
-            let stream = LM.promptStreaming(message);
+            let stream = LANGUAGE_MODEL.promptStreaming(message);
 
             let res = "";
             for await (const chunk of stream) {
@@ -60,12 +60,12 @@
                 await new Promise(resolve => setTimeout(resolve, $generalSettings.delayForStream));
             }
         } else {
-            let res = await LM.prompt(message);
+            let res = await LANGUAGE_MODEL.prompt(message);
             messages[messages.length-1].content = await marked(res);
         }
         elaborating = false;
     };
 </script>
 
-<Title title="Language Model" tabName="lm" settingsInit={templateSettings} inputsInit={templateInputs} submit={submit}/>
+<Title title="Language Model" ai={LANGUAGE_MODEL} tabName="lm" settingsInit={templateSettings} inputsInit={templateInputs} submit={submit}/>
 <Output elaborating={elaborating} messages={messages}/>

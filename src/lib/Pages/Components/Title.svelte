@@ -1,8 +1,18 @@
 <script lang="ts">
     import { settings, inputs } from "../shared";
     import Input from "./Input.svelte";
+    
+    import type { NanoAIService } from "../../api/nano-ai";
+    
+    let { title, tabName, settingsInit, inputsInit, submit, ai } = $props();
 
-    let { title, tabName, settingsInit, inputsInit, submit } = $props();
+    ai = ai as NanoAIService;
+
+    let isAvaliable = $state("unavailable");    
+
+    ai.availability?.then((res: string) => {
+        isAvaliable = res;
+    });
 
     let optionsOpen = $state(true);
 
@@ -26,15 +36,19 @@
     }
 </script>
 
-<div class="title-container">
+<div class="title-container" class:exists={ai.exists}>
     <div>
         <h1>{title}</h1>
+        {#if isAvaliable === "unavailable"}
+            <p class="unavailable">Unavailable</p>
+        {/if}
         <h2>Inputs</h2>
         <form onsubmit={(e) => { e.preventDefault(); submit(e); }}>
-            {#each inputsInit as input}
+            {#each inputsInit as input (input.name)}
                 <Input bind:value={$inputs[tabName][input.name]} {...input}/>
             {/each}
             <button class="submit" type="submit">Send</button>
+            <button class="stop" type="reset" onclick={() => ai.abort("Stopped by user")}>Stop</button>
         </form>
     </div>
     {#if settingsInit.length > 0}
@@ -43,7 +57,7 @@
         </button>
         <div class="options-container" class:hidden={!optionsOpen}>
             <div class="option-item">
-                {#each settingsInit as setting}
+                {#each settingsInit as setting (setting.name)}
                     <Input bind:value={$settings[tabName][setting.name]} {...setting}/>
                 {/each}
             </div>
@@ -57,9 +71,19 @@
         grid-template-columns: 1fr min-content auto;
         padding: 5px 0 5px 5px;
     }
+
+    .title-container:not(.exists) {
+        filter: grayscale(1);
+    }
+
   
     h1{
         margin-top: 0;
+    }
+
+    .unavailable {
+        color: red;
+        font-size: 0.8em;
     }
 
     @keyframes expand{

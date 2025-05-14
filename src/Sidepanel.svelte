@@ -7,7 +7,7 @@
   import Summarizer from "./lib/Pages/Summarizer.svelte";
   import Writer from "./lib/Pages/Writer.svelte";
   import Rewriter from "./lib/Pages/Rewriter.svelte";
-  import Translate from "./lib/Pages/Translate.svelte";
+  import Translator from "./lib/Pages/Translator.svelte";
 
   const tabs = ['home', 'lm', 'summarizer', 'detector', 'translate', 'writer', 'rewriter', 'settings'];
 </script>
@@ -20,7 +20,7 @@
   {/if}
   <div class="tab-container">
       <div class="tab-buttons">
-          {#each tabs as tab}
+          {#each tabs as tab (tab)}
               <button class="tab-button" on:click={() => { $activeTab = tab }}>{tab}</button>
           {/each}
       </div>
@@ -34,7 +34,7 @@
           {:else if $activeTab === 'detector'}
               <LanguageDetector/>
           {:else if $activeTab === 'translate'}
-              <Translate/>
+              <Translator/>
           {:else if $activeTab === 'writer'}
               <Writer/>
           {:else if $activeTab === 'rewriter'}

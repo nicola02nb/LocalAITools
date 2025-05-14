@@ -1,8 +1,8 @@
-import { mount } from 'svelte'
-import Sidepanel from './Sidepanel.svelte'
+import { mount } from "svelte";
+import Sidepanel from "./Sidepanel.svelte";
 
 const app = mount(Sidepanel, {
-  target: document.getElementById('app')!,
-})
+  target: document.getElementById("app")!,
+});
 
-export default app
+export default app;

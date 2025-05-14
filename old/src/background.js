@@ -10,39 +10,43 @@ chrome.commands.onCommand.addListener((command, tab) => {
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "lm" || info.menuItemId === "summarizer" 
-    || info.menuItemId === "translate" || info.menuItemId === "detector") {
+  if (
+    info.menuItemId === "lm" ||
+    info.menuItemId === "summarizer" ||
+    info.menuItemId === "translate" ||
+    info.menuItemId === "detector"
+  ) {
     let toPass = {};
     toPass[info.menuItemId] = null;
-    chrome.storage.local.set({ toPass: toPass}, () => {
+    chrome.storage.local.set({ toPass: toPass }, () => {
       chrome.sidePanel.setOptions({ enabled: true });
       chrome.sidePanel.open({ windowId: tab.windowId });
     });
     toPass[info.menuItemId] = info.selectionText;
-    chrome.storage.local.set({ toPass: toPass});
+    chrome.storage.local.set({ toPass: toPass });
   }
 });
 
 chrome.contextMenus.create({
   id: "lm",
   title: "Language Model",
-  contexts:["selection"]
+  contexts: ["selection"],
 });
 
 chrome.contextMenus.create({
   id: "summarizer",
   title: "Summarize",
-  contexts: ["selection"]
+  contexts: ["selection"],
 });
 
 chrome.contextMenus.create({
   id: "translate",
   title: "Translate",
-  contexts: ["selection"]
+  contexts: ["selection"],
 });
 
 chrome.contextMenus.create({
   id: "detector",
   title: "Language Detector",
-  contexts: ["selection"]
+  contexts: ["selection"],
 });

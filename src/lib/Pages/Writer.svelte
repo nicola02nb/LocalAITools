@@ -83,5 +83,5 @@
     };
 </script>
 
-<Title title="Writer" tabName="writer" settingsInit={templateSettings} inputsInit={templateInputs} submit={submit}/>
+<Title title="Writer" ai={WRITER} tabName="writer" settingsInit={templateSettings} inputsInit={templateInputs} submit={submit}/>
 <Output content={output} elaborating={elaborating} />

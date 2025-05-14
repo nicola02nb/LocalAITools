@@ -8,9 +8,9 @@ function setSidepanelVisible(visible, windowId, callback = () => {}) {
   }
 }
 
-function sendMessage(message){
-  chrome.runtime.sendMessage(message, function(response) {
-    if(!response) {
+function sendMessage(message) {
+  chrome.runtime.sendMessage(message, function (response) {
+    if (!response) {
       setTimeout(() => {
         sendMessage(message);
       }, 500);
@@ -26,8 +26,12 @@ chrome.commands.onCommand.addListener((command, tab) => {
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "summarizer" || info.menuItemId === "detector" 
-    || info.menuItemId === "translate" || info.menuItemId === "rewriter") {
+  if (
+    info.menuItemId === "summarizer" ||
+    info.menuItemId === "detector" ||
+    info.menuItemId === "translate" ||
+    info.menuItemId === "rewriter"
+  ) {
     setSidepanelVisible(true, tab.windowId, () => {
       sendMessage({ action: info.menuItemId, text: info.selectionText });
     });
@@ -36,7 +40,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((msg) => {
-    setSidepanelVisible(true, port.sender.tab.windowId, () => {;
+    setSidepanelVisible(true, port.sender.tab.windowId, () => {
       sendMessage({ action: msg.action, text: msg.text });
     });
   });
@@ -58,5 +62,3 @@ chrome.runtime.onInstalled.addListener(() => {
     });
   });
 });
-
-

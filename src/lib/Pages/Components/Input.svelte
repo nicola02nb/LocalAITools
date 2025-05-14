@@ -9,7 +9,7 @@
             {#if props.options.length > 0}
                 <option value="" disabled selected>Select an option</option>
             {/if}
-            {#each props.options as option}
+            {#each props.options as option (option.value)}
                 <option value={option.value}>{option.label}</option>
             {/each}
         </select>

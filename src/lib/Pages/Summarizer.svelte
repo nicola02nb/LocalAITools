@@ -90,5 +90,5 @@
     };
 </script>
 
-<Title title="Summarizer" tabName="summarizer" settingsInit={templateSettings} inputsInit={templateInputs} submit={submit}/>
+<Title title="Summarizer" ai={SUMMARIZER} tabName="summarizer" settingsInit={templateSettings} inputsInit={templateInputs} submit={submit}/>
 <Output content={output} elaborating={elaborating} />
