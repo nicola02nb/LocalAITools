@@ -1,50 +1,54 @@
 <script lang="ts">
-    import { settings, inputs } from "../shared";
+    import { inputs, settings } from "../shared";
     import Input from "./Input.svelte";
     
     import type { NanoAIBase } from "../../api/nano-ai";
+    import { untrack } from "svelte";
     
-    let { title, tabName, settingsInit, inputsInit, submit, ai } = $props();
+    let { title = $bindable(), tabName = $bindable(), inputsInit = $bindable(), settingsInit = $bindable(), submit, ai = $bindable() } = $props();
+    let AI = ai as NanoAIBase;
 
-    ai = ai as NanoAIBase;
-
-    let isAvaliable = $state("unavailable");    
-
-    if ( ai.availability.then) {
-        ai.availability?.then((res: string) => {
-            isAvaliable = res;
-        });
-    }
-    
+    let isAvaliable = $state("");  
+    let downloadProgress = $state(0);
 
     let optionsOpen = $state(true);
-
-    for (const input of inputsInit) {
+    
+    $effect.pre(() => {
         if (!$inputs[tabName]) {
-            $inputs[tabName] = {};
+            untrack(() => $inputs)[tabName] = {};
         }
-        if (!$inputs[tabName][input.name]) {
-            $inputs[tabName][input.name] = input.value;
+        for (const input of inputsInit) {
+            if (!$inputs[tabName]) {
+                untrack(() => $inputs)[tabName] = {};
+            }
+            if (!$inputs[tabName][input.name]) {
+                untrack(() => $inputs)[tabName][input.name] = input.value;
+            }
         }
-    }
-    if (!$settings[tabName]) {
-        $settings[tabName] = {};
-    }
-    for (const setting of settingsInit) {
-        if (!$settings[tabName][setting.name]) {
-            $settings[tabName][setting.name] = setting.value;
-        } else{
-            setting.value = $settings[tabName][setting.name];
+    });
+
+    $effect.pre(() => {  
+        if (!$settings[tabName]) {
+            untrack(() => $settings) [tabName] = {};
         }
-    }
+        for (const setting of settingsInit) {
+            if (!$settings[tabName][setting.name]) {
+                untrack(() => $settings) [tabName][setting.name] = setting.value;
+            } else{
+                setting.value = $settings[tabName][setting.name];
+            }
+        }
+    });
 </script>
 
-<div class="title-container" class:exists={ai.exists}>
+<div class="title-container" class:exists={AI?.exists}>
     <div>
         <h1>{title}</h1>
         {#if isAvaliable === "unavailable"}
             <p class="unavailable">Unavailable</p>
-        {/if}
+        {:else if isAvaliable === "downloading"}
+            <p class="unavailable">Downloading {Math.round(downloadProgress * 100)}%</p>
+        {/if}        
         <h2>Inputs</h2>
         <form onsubmit={(e) => { e.preventDefault(); submit(e); }}>
             {#each inputsInit as input (input.name)}
@@ -55,14 +59,16 @@
         </form>
     </div>
     {#if settingsInit.length > 0}
-        <button class="options-button" aria-label="Open Settings" onclick={() => optionsOpen = !optionsOpen}>
+        <div class="options">
+            <button class="options-button" aria-label="Open Settings" onclick={() => optionsOpen = !optionsOpen}>
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>
-        </button>
-        <div class="options-container" class:hidden={!optionsOpen}>
-            <div class="option-item">
-                {#each settingsInit as setting (setting.name)}
-                    <Input bind:value={$settings[tabName][setting.name]} {...setting}/>
-                {/each}
+            </button>
+            <div class="options-container" class:hidden={!optionsOpen}>
+                <div class="option-item">
+                    {#each settingsInit as setting (setting.name)}
+                        <Input bind:value={$settings[tabName][setting.name]} {...setting}/>
+                    {/each}
+                </div>
             </div>
         </div>
     {/if}
@@ -70,50 +76,41 @@
 
 <style>
     .title-container {
-        display: grid;
-        grid-template-columns: 1fr min-content auto;
-        padding: 5px 0 5px 5px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 10px 0 15px 15px;
     }
 
     .title-container:not(.exists) {
         filter: grayscale(1);
     }
 
-  
     h1{
         margin-top: 0;
+        margin-bottom: 0.4em;
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 1.2em;
     }
 
     .unavailable {
         color: red;
         font-size: 0.8em;
-    }
+    }    
 
-    @keyframes expand{
-        0% { width: 0; }
-        100% { width: 50vw; }
-    }
-
-    @keyframes compress{
-        0% { width: 50vw; }
-        100% { width: 0; }
-    }
-
-    .options-container{
-        transition: 0.5s;
-        background: rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        padding: 10px;
-    }
-
-    .options-container:not(.hidden) {
-        width: 30vw;
-    }
-
-    .options-container.hidden {
-        width: 0;
+    .options {
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+        right: 0px;
+        transform: translateY(-10px);
         padding: 0;
+        position: absolute;
+        z-index: 1;
     }
 
     .options-button {
@@ -123,18 +120,30 @@
         padding: 2px 2px 0 2px;
         margin: 5px;
     }
-
     .options-button:hover {
         cursor: pointer;
         filter: brightness(0.9);
     }
-
     .options-button > svg {
         fill: var("black");
     }
-
     .options-button:hover > svg {
         transform: rotate(360deg);
         transition: 1s;
     }
+
+    .options-container{
+        position: relative;
+        display: flex;
+        transition: 0.5s;
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 10px 0 0 10px;
+        padding: 10px;
+        animation: all 0.5s ease-in-out;
+    }
+
+    .options-container.hidden {
+        transform: translateX(97%);
+        animation: all 0.5s ease-in-out;
+    }    
 </style>

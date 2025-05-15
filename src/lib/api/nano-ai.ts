@@ -22,14 +22,17 @@ interface NanoAIService {
 export class NanoAIBase {
   serviceType: string;
   exists: boolean;
-  availability: Promise<string> | string;
   options: NanoAIServiceOptions;
 
   controller!: AbortController;
   service: NanoAIService | undefined;
 
-  call?: (...args: string[]) => Promise<string>;
+  call?: (
+    ...args: string[]
+  ) => Promise<string | { detectedLanguage: string; confidence: number }[]>;
   callStream?: (...args: string[]) => ReadableStream<Promise<string>>;
+
+  callBackDownload: (e: { loaded: number }) => void = () => {};
 
   constructor(serviceType: string, options: NanoAIServiceOptions = {}) {
     this.serviceType = serviceType;
@@ -38,22 +41,25 @@ export class NanoAIBase {
     this.controller = new AbortController();
     if (serviceType in self) {
       this.exists = true;
-      this.availability = (self as any)[this.serviceType].availability();
-      this.init();
     } else {
-      this.availability = "unavailable";
       console.error(`The ${serviceType} API is not available.`);
     }
   }
 
-  async init(options = this.options) {
+  async init(
+    options = this.options,
+    callbackDownload: (e: { loaded: number }) => void,
+  ) {
+    this.callBackDownload = callbackDownload;
+    let availability;
     if (!this.exists) return;
+    if (this.serviceType === "Translator")
+      availability = (self as any)[this.serviceType].availability(options);
+    else availability = (self as any)[this.serviceType].availability();
 
-    this.availability = await this.availability;
+    if (availability === "unavailable") return;
 
-    if (this.availability === "unavailable") return;
-
-    if (this.availability === "available") {
+    if (availability === "available") {
       this.service = await (self as any)[this.serviceType].create({
         ...options,
       });
@@ -66,20 +72,17 @@ export class NanoAIBase {
             callback: (e: { loaded: number }) => void,
           ) => void;
         }) {
-          m.addEventListener("downloadprogress", (e: { loaded: number }) => {
-            console.log(`Downloaded ${e.loaded * 100}%`);
-          });
+          m.addEventListener("downloadprogress", callbackDownload);
         },
       });
+      await this.service?.ready;
     }
-
-    return this.service;
   }
 
   async reInit(options: NanoAIServiceOptions = this.options) {
     this.destroy();
     this.options = options || this.options;
-    await this.init(this.options);
+    await this.init(this.options, this.callBackDownload);
   }
 
   abort(message: string = "Aborted") {
@@ -144,6 +147,10 @@ export class NanoAILanguageModel extends NanoAIBase {
   setOnQuotaOverflow(
     callback: (status: { used: number; left: number; max: number }) => void,
   ) {
+    if (!this.service) {
+      console.error("Service is not initialized.");
+      return;
+    }
     this.service.onQuotaOverflow = callback;
   }
 
@@ -220,7 +227,7 @@ export class NanoAILanguageDetector extends NanoAIBase {
 export class NanoAITranslator extends NanoAIBase {
   constructor(
     options: NanoAIServiceOptions = {
-      sourceLanguage: "auto",
+      sourceLanguage: "en",
       targetLanguage: "en",
     },
   ) {
@@ -231,6 +238,13 @@ export class NanoAITranslator extends NanoAIBase {
 
   getSupportedLanguages() {
     return this.service?.languages;
+  }
+
+  areLanguagesChanged(sourceLanguage: string, targetLanguage: string): boolean {
+    return (
+      this.service?.sourceLanguage !== sourceLanguage ||
+      this.service?.targetLanguage !== targetLanguage
+    );
   }
 
   async translate(text: string) {
@@ -289,3 +303,12 @@ export class NanoAIRewriter extends NanoAIBase {
     this.reInit();
   }
 }
+
+export const mapNameToClass: { [key: string]: NanoAIBase } = {
+  LanguageModel: new NanoAILanguageModel(),
+  Summarizer: new NanoAISummarizer(),
+  LanguageDetector: new NanoAILanguageDetector(),
+  Translator: new NanoAITranslator(),
+  Writer: new NanoAIWriter(),
+  Rewriter: new NanoAIRewriter(),
+};

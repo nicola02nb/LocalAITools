@@ -16,6 +16,9 @@
     {:else if props.type === "checkbox"}
         <input type="checkbox" name={props.name} id={props.name} bind:checked={value}/>
     {:else}
+        {#if props.type === "range"}
+            <output for={props.name}>{value}</output>
+        {/if}
         <input bind:value={value} id={props.name} {...props}/>
     {/if}
 </div>
@@ -32,11 +35,13 @@
         margin-right: 10px;
         font-weight: bold;
     }
-
+    
     input {
         border: 2px solid;
         border-radius: 5px;
         padding: 5px;
         margin: 3px;
+        accent-color: var(--secondary);
     }
+    
 </style>

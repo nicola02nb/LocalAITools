@@ -1,6 +1,31 @@
 import { writable } from "svelte/store";
 
-export const activeTab = writable<string>("home");
+export enum EnumAiTabs {
+  lm = "lm",
+  summarizer = "summarizer",
+  detector = "detector",
+  translator = "translator",
+  writer = "writer",
+  rewriter = "rewriter",
+}
+
+const aiTabs = [...Object.values(EnumAiTabs)];
+
+export const tabs = ["home", ...aiTabs, "settings"];
+
+export const tabNames = {
+  home: "Home",
+  lm: "LanguageModel",
+  summarizer: "Summarizer",
+  detector: "LanguageDetector",
+  translator: "Translator",
+  writer: "Writer",
+  rewriter: "Rewriter",
+  settings: "Settings",
+};
+
+export type TabName = (typeof tabs)[number];
+export const activeTab = writable<TabName>("home");
 
 interface Settings {
   [key: string]: string | number | boolean;
@@ -10,12 +35,12 @@ interface Input {
   [key: string]: string;
 }
 
+export const inputs = writable<{ [key: string]: Input }>({});
+export const settings = writable<{ [key: string]: Settings }>({});
 export const generalSettings = writable<Settings>({
   streamOutput: true,
   delayForStream: 25,
 });
-export const settings = writable<{ [key: string]: Settings }>({});
-export const inputs = writable<{ [key: string]: Input }>({});
 
 if (chrome?.storage?.local) {
   chrome.storage.local.get("activeTab").then((result) => {

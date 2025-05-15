@@ -1,19 +1,14 @@
 <script lang="ts">
   import { activeTab, inputs, settings, generalSettings } from "./lib/Pages/shared";
+  import Page from "./lib/Pages/Page.svelte";
   import Home from "./lib/Pages/Home.svelte";
-  import LanguageDetector from "./lib/Pages/LanguageDetector.svelte";
-  import LanguageModel from "./lib/Pages/LanguageModel.svelte";
   import Settings from "./lib/Pages/Settings.svelte";
-  import Summarizer from "./lib/Pages/Summarizer.svelte";
-  import Writer from "./lib/Pages/Writer.svelte";
-  import Rewriter from "./lib/Pages/Rewriter.svelte";
-  import Translator from "./lib/Pages/Translator.svelte";
 
-  const tabs = ['home', 'lm', 'summarizer', 'detector', 'translate', 'writer', 'rewriter', 'settings'];
+  import { tabs } from "./lib/Pages/shared";
 </script>
 
 <main>
-  {#if process.env.NODE_ENV === 'development' && false}
+  {#if process.env.NODE_ENV === 'development'}
     <div>{JSON.stringify($generalSettings)}</div>
     <div>{JSON.stringify($inputs)}</div>
     <div>{JSON.stringify($settings)}</div>
@@ -25,22 +20,12 @@
           {/each}
       </div>
       <div class="tab-content">
-          {#if $activeTab === 'home'}
+          {#if $activeTab === "home"}
               <Home/>
-          {:else if $activeTab === 'lm'}
-              <LanguageModel/>
-          {:else if $activeTab === 'summarizer'}
-              <Summarizer/>
-          {:else if $activeTab === 'detector'}
-              <LanguageDetector/>
-          {:else if $activeTab === 'translate'}
-              <Translator/>
-          {:else if $activeTab === 'writer'}
-              <Writer/>
-          {:else if $activeTab === 'rewriter'}
-              <Rewriter/>
-          {:else if $activeTab === 'settings'}
+          {:else if $activeTab === "settings"}
               <Settings/>
+          {:else}
+              <Page/>
           {/if}
       </div>
   </div>
@@ -124,7 +109,7 @@
 .tab-content {
   background-color: var(--secondary-transparent-light);
   flex-grow: 1;
-  padding: 10px;
+  padding: 10px 10px 10px 10px;
   display: flex;
   flex-direction: column;
   overflow: hidden;

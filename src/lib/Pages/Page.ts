@@ -1,0 +1,265 @@
+const lmSettings = [
+  {
+    name: "temperature",
+    label: "Temperature:",
+    type: "range",
+    value: 1,
+    step: 0.1,
+    min: 0,
+    max: 2,
+  },
+  {
+    name: "topK",
+    label: "Top K:",
+    type: "range",
+    value: 3,
+    step: 1,
+    min: 1,
+    max: 8,
+  },
+];
+
+const lmInputs = [
+  {
+    name: "lm-text",
+    label: "Message:",
+    type: "text",
+    value: "",
+    placeholder: "Enter message...",
+    required: true,
+  },
+];
+
+const summarizerSettings = [
+  {
+    name: "sharedContext",
+    label: "Shared Context:",
+    type: "text",
+    value: "",
+    placeholder: "Enter shared context...",
+    required: false,
+  },
+  {
+    name: "type",
+    label: "Type:",
+    type: "select",
+    value: "key-points",
+    options: [
+      { value: "key-points", label: "Key Points" },
+      { value: "tl;dr", label: "TL;DR" },
+      { value: "teaser", label: "Teaser" },
+      { value: "headline", label: "Headline" },
+    ],
+  },
+  {
+    name: "format",
+    label: "Format:",
+    type: "select",
+    value: "plain-text",
+    options: [
+      { value: "plain-text", label: "Plain Text" },
+      { value: "markdown", label: "Markdown" },
+    ],
+  },
+  {
+    name: "length",
+    label: "Length:",
+    type: "select",
+    value: "short",
+    options: [
+      { value: "short", label: "Short" },
+      { value: "medium", label: "Medium" },
+      { value: "long", label: "Long" },
+    ],
+  },
+];
+
+const summarizerInputs = [
+  {
+    name: "context",
+    label: "Context:",
+    type: "text",
+    placeholder: "Enter context...",
+    required: false,
+  },
+  {
+    name: "summarizer-text",
+    label: "Text to summarize:",
+    type: "text",
+    placeholder: "Enter text to summarize...",
+    required: true,
+  },
+];
+
+const detectorSettings: object[] = [];
+
+const detectorInputs = [
+  {
+    name: "detector-text",
+    label: "Text to detect:",
+    type: "text",
+    value: "",
+    placeholder: "Enter text to detect language...",
+    required: true,
+  },
+];
+
+const languages = [
+  { value: "en", label: "English" },
+  { value: "it", label: "Italian" },
+];
+
+const translatorSettings = [
+  {
+    name: "sourceLanguage",
+    label: "Source:",
+    type: "select",
+    value: "auto",
+    options: [{ value: "auto", label: "Auto Detect" }, ...languages],
+  },
+  {
+    name: "targetLanguage",
+    label: "Target:",
+    type: "select",
+    value: "en",
+    options: [{ value: "auto", label: "System Language (Auto)" }, ...languages],
+  },
+];
+
+const translatorInputs = [
+  {
+    name: "translator-text",
+    label: "Text to translate:",
+    type: "text",
+    value: "",
+    placeholder: "Enter text to translate...",
+    required: true,
+  },
+];
+
+const writerSettings = [
+  {
+    name: "sharedContext",
+    label: "Shared Context:",
+    type: "text",
+    value: "",
+    placeholder: "Enter shared context...",
+    required: false,
+  },
+  {
+    name: "tone",
+    label: "Tone:",
+    type: "select",
+    value: "neutral",
+    options: [
+      { value: "formal", label: "Formal" },
+      { value: "neutral", label: "Neutral" },
+      { value: "casual", label: "Casual" },
+    ],
+  },
+  {
+    name: "length",
+    label: "Length:",
+    type: "select",
+    value: "short",
+    options: [
+      { value: "short", label: "Short" },
+      { value: "medium", label: "Medium" },
+      { value: "long", label: "Long" },
+    ],
+  },
+  {
+    name: "format",
+    label: "Format:",
+    type: "select",
+    value: "plain-text",
+    options: [
+      { value: "plain-text", label: "Plain Text" },
+      { value: "markdown", label: "Markdown" },
+    ],
+  },
+];
+
+const writerInputs = [
+  {
+    name: "writer-text",
+    label: "Text to write:",
+    type: "text",
+    value: "",
+    placeholder: "Enter text to write...",
+    required: true,
+  },
+];
+
+const rewriterSettings = [
+  {
+    name: "sharedContext",
+    label: "Shared Context:",
+    type: "text",
+    value: "",
+    placeholder: "Enter shared context...",
+    required: false,
+  },
+  {
+    name: "tone",
+    label: "Tone:",
+    type: "select",
+    value: "as-is",
+    options: [
+      { value: "as-is", label: "As Is" },
+      { value: "more-formal", label: "More Formal" },
+      { value: "more-creative", label: "More Creative" },
+    ],
+  },
+  {
+    name: "length",
+    label: "Length:",
+    type: "select",
+    value: "as-is",
+    options: [
+      { value: "as-is", label: "As Is" },
+      { value: "shorter", label: "Shorter" },
+      { value: "longer", label: "Longer" },
+    ],
+  },
+  {
+    name: "format",
+    label: "Format:",
+    type: "select",
+    value: "plain-text",
+    options: [
+      { value: "as-is", label: "As Is" },
+      { value: "plain-text", label: "Plain Text" },
+      { value: "markdown", label: "Markdown" },
+    ],
+  },
+];
+
+const rewriterInputs = [
+  {
+    name: "rewriter-text",
+    label: "Text to rewrite:",
+    type: "text",
+    value: "",
+    placeholder: "Enter text to rewrite...",
+    required: true,
+  },
+];
+
+export const nameToInputs = {
+  lm: lmInputs,
+  summarizer: summarizerInputs,
+  detector: detectorInputs,
+  translator: translatorInputs,
+  writer: writerInputs,
+  rewriter: rewriterInputs,
+};
+
+export const nameToSettings = {
+  lm: lmSettings,
+  summarizer: summarizerSettings,
+  detector: detectorSettings,
+  translator: translatorSettings,
+  writer: writerSettings,
+  rewriter: rewriterSettings,
+};

@@ -1,6 +1,5 @@
 <script lang="ts">
-
-    let { content = "", messages = [], elaborating = true } = $props();
+    let { error = "", content="", messages = [], elaborating = true } = $props();
 
     $effect(() => {
         if (!elaborating){
@@ -13,16 +12,19 @@
 </script>
 
 <div class="output scrollable">
+    {#if error}
+        <div class="error">{error}</div>
+    {/if}
     {#if messages.length > 0}
         {#each messages as message, index (index)}
             <div class="message {message.role}">
-                {#if message.role === "lm"}
+                {#if message.role === "ai"}
                     <div class="loader" class:loading={elaborating}></div>
                 {/if}
                 <div>{@html message.content}</div>
             </div>
         {/each}
-    {:else}
+    {:else if content}
         <div class="loader" class:loading={elaborating}></div>
         <div>{@html content}</div>
     {/if}
@@ -69,7 +71,7 @@
         position: relative;
     }
 
-    .message.lm {
+    .message.ai {
         background: rgba(0,0,0,0.1);
     }
     .message.user {
