@@ -6,6 +6,8 @@
  * The services are designed to work with the `window.ai` object, which is expected to be provided by the environment.
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 interface Prompt {
   role: string;
   content: string;

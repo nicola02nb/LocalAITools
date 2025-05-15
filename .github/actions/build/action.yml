@@ -1,0 +1,26 @@
+name: Build Action
+description: "Builds the LocalAiTools project."
+
+runs:
+  using: "composite"
+  steps:
+    - uses: oven-sh/setup-bun@v2
+
+    - name: build
+      shell: bash
+      run: |
+        bun install
+        bun run lint
+        bun run build
+
+    - name: zip
+      shell: bash
+      run: |
+        cd dist
+        zip -r LocalAiTools.zip ./*
+
+    - name: upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: LocalAiTools
+        path: dist/LocalAiTools.zip

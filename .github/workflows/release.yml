@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag(e.g., 1.2.3) without starting 'v'"
+        required: true
+        default: "continuous"
+        type: string
+      prerelease:
+        description: "Set as prerelease"
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        uses: ./.github/actions/build
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - name: GH Release
+        uses: softprops/action-gh-release@v2.2.2
+        with:
+          tag_name: ${{ inputs.version }}
+          name: Release ${{ inputs.version }}
+          prerelease: ${{ inputs.prerelease}}
+          generate_release_notes: true
+          files: |
+            LocalAiTools.zip
