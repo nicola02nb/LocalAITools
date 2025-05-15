@@ -29,7 +29,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (
     info.menuItemId === "summarizer" ||
     info.menuItemId === "detector" ||
-    info.menuItemId === "translate" ||
+    info.menuItemId === "translator" ||
     info.menuItemId === "rewriter"
   ) {
     setSidepanelVisible(true, tab.windowId, () => {
