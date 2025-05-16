@@ -21,11 +21,13 @@
                 {#if message.role === "ai"}
                     <div class="loader" class:loading={elaborating}></div>
                 {/if}
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                 <div>{@html message.content}</div>
             </div>
         {/each}
     {:else if content}
         <div class="loader" class:loading={elaborating}></div>
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         <div>{@html content}</div>
     {/if}
 </div>

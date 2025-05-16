@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag(e.g., 1.2.3) without starting 'v'"
+        required: true
+        default: "continuous"
+        type: string
+      prerelease:
+        description: "Set as prerelease"
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        uses: ./.github/actions/build
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - name: Deploy continuous
+        uses: crowbarmaster/GH-Automatic-Releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: ${{ inputs.version }}
+          prerelease: ${{ startsWith(github.ref, 'refs/tags/continuous') || inputs.prerelease }}
+          title: Release ${{ inputs.version }}
+          files: |
+            LocalAiTools.zip

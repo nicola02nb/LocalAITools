@@ -1,31 +1,17 @@
 name: Build
 
 on:
-    workflow_dispatch:
-    push:
-        branches: [ "main" ]
-    pull_request:
-        branches: [ "main" ]
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - uses: oven-sh/setup-bun@v2
-        
-            - name: build
-              run: |
-                bun install
-                bun run lint
-                bun run build
-            
-            - name: zip
-              run: |
-                zip -r LocalAiTools.zip . -x "dist/*"
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: upload
-              uses: actions/upload-artifact@v4
-              with:
-                name: LocalAiTools.zip
-                path: LocalAiTools.zip
+      - name: Build
+        uses: ./.github/actions/build
