@@ -110,10 +110,12 @@
         transform: translateY(-10px);
         padding: 0;
         position: absolute;
+        pointer-events: none;
         z-index: 1;
     }
 
     .options-button {
+        pointer-events: all;
         border: none;
         height: fit-content;
         border-radius: 50%;
@@ -133,6 +135,7 @@
     }
 
     .options-container{
+        pointer-events: all;
         position: relative;
         display: flex;
         transition: 0.5s;

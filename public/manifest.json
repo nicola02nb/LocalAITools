@@ -2,7 +2,7 @@
   "name": "Local AI Tools",
   "version": "0.1.0",
   "manifest_version": 3,
-  "description": "A Chrome extension to ouse AI built into Chrome.",
+  "description": "A Chrome extension to use AI built into Chrome.",
   "background": {
     "service_worker": "background.js"
   },
