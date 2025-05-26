@@ -1,4 +1,19 @@
-const lmSettings = [
+type InputType = {
+  name: string;
+  label: string;
+  type: "text" | "select" | "range";
+  value: string | number;
+  placeholder?: string;
+  required?: boolean;
+  options?:
+    | { value: string; label: string }[]
+    | { value: string; label: string }[];
+  step?: number;
+  min?: number;
+  max?: number;
+};
+
+const lmSettings: InputType[] = [
   {
     name: "temperature",
     label: "Temperature:",
@@ -19,18 +34,18 @@ const lmSettings = [
   },
 ];
 
-const lmInputs = [
+const lmInputs: InputType[] = [
   {
     name: "lm-text",
     label: "Message:",
     type: "text",
     value: "",
     placeholder: "Enter message...",
-    required: true,
+    required: false,
   },
 ];
 
-const summarizerSettings = [
+const summarizerSettings: InputType[] = [
   {
     name: "sharedContext",
     label: "Shared Context:",
@@ -74,11 +89,12 @@ const summarizerSettings = [
   },
 ];
 
-const summarizerInputs = [
+const summarizerInputs: InputType[] = [
   {
     name: "context",
     label: "Context:",
     type: "text",
+    value: "",
     placeholder: "Enter context...",
     required: false,
   },
@@ -86,14 +102,15 @@ const summarizerInputs = [
     name: "summarizer-text",
     label: "Text to summarize:",
     type: "text",
+    value: "",
     placeholder: "Enter text to summarize...",
     required: true,
   },
 ];
 
-const detectorSettings: object[] = [];
+const detectorSettings: InputType[] = [];
 
-const detectorInputs = [
+const detectorInputs: InputType[] = [
   {
     name: "detector-text",
     label: "Text to detect:",
@@ -109,7 +126,7 @@ const languages = [
   { value: "it", label: "Italian" },
 ];
 
-const translatorSettings = [
+const translatorSettings: InputType[] = [
   {
     name: "sourceLanguage",
     label: "Source:",
@@ -126,7 +143,7 @@ const translatorSettings = [
   },
 ];
 
-const translatorInputs = [
+const translatorInputs: InputType[] = [
   {
     name: "translator-text",
     label: "Text to translate:",
@@ -137,7 +154,7 @@ const translatorInputs = [
   },
 ];
 
-const writerSettings = [
+const writerSettings: InputType[] = [
   {
     name: "sharedContext",
     label: "Shared Context:",
@@ -180,7 +197,7 @@ const writerSettings = [
   },
 ];
 
-const writerInputs = [
+const writerInputs: InputType[] = [
   {
     name: "writer-text",
     label: "Text to write:",
@@ -191,7 +208,7 @@ const writerInputs = [
   },
 ];
 
-const rewriterSettings = [
+const rewriterSettings: InputType[] = [
   {
     name: "sharedContext",
     label: "Shared Context:",
@@ -235,7 +252,7 @@ const rewriterSettings = [
   },
 ];
 
-const rewriterInputs = [
+const rewriterInputs: InputType[] = [
   {
     name: "rewriter-text",
     label: "Text to rewrite:",
@@ -246,7 +263,7 @@ const rewriterInputs = [
   },
 ];
 
-export const nameToInputs = {
+export const nameToInputs: { [key: string]: InputType[] } = {
   lm: lmInputs,
   summarizer: summarizerInputs,
   detector: detectorInputs,

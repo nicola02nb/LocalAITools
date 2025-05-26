@@ -23,6 +23,7 @@
   "dependencies": {
     "@eslint/compat": "^1.2.9",
     "@types/chrome": "^0.0.322",
+    "@types/dom-chromium-ai": "^0.0.7",
     "@types/node": "^22.15.18",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-svelte": "^3.6.0",

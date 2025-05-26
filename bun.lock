@@ -6,6 +6,7 @@
       "dependencies": {
         "@eslint/compat": "^1.2.9",
         "@types/chrome": "^0.0.322",
+        "@types/dom-chromium-ai": "^0.0.7",
         "@types/node": "^22.15.18",
         "eslint-config-prettier": "^10.1.5",
         "eslint-plugin-svelte": "^3.6.0",
@@ -174,6 +175,8 @@
     "@tsconfig/svelte": ["@tsconfig/svelte@5.0.4", "", {}, "sha512-BV9NplVgLmSi4mwKzD8BD/NQ8erOY/nUE/GpgWe2ckx+wIQF5RyRirn/QsSSCPeulVpc3RA/iJt6DpfTIZps0Q=="],
 
     "@types/chrome": ["@types/chrome@0.0.322", "", { "dependencies": { "@types/filesystem": "*", "@types/har-format": "*" } }, "sha512-glbRm82TzLLJfi3ttlnn7HR9KIX5OYeTo9Xug0Hna03JvaqNipZT+P/q/O5kxOvUQqKUqmn8NAOrcRSG6BOQAw=="],
+
+    "@types/dom-chromium-ai": ["@types/dom-chromium-ai@0.0.7", "", {}, "sha512-nt1pTKmvEWjrAq/QuFEpcXYsTGZwuSdPhGNJf6YtMZDiLkQJcEq8znZImO9ABnHEoYbSX899ez3YUZmlE7fkYw=="],
 
     "@types/estree": ["@types/estree@1.0.7", "", {}, "sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ=="],
 

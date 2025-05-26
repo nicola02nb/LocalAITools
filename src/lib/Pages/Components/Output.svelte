@@ -1,4 +1,6 @@
 <script lang="ts">
+  import MediaOutput from "./MediaOutput.svelte";
+
     let { error = "", content="", messages = [], elaborating = true } = $props();
 
     $effect(() => {
@@ -18,11 +20,18 @@
     {#if messages.length > 0}
         {#each messages as message, index (index)}
             <div class="message {message.role}">
-                {#if message.role === "ai"}
+                <h6>{message.role}</h6>
+                {#if message.role === "system"}
                     <div class="loader" class:loading={elaborating}></div>
                 {/if}
-                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                <div>{@html message.content}</div>
+                {#each message.content as input, index (index)}
+                {#if input.type === "text"}
+                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                        <div class="text">{@html input.value}</div>
+                    {:else}
+                        <MediaOutput type={input.type} content={input.value} />
+                    {/if}
+                {/each}
             </div>
         {/each}
     {:else if content}
@@ -73,7 +82,7 @@
         position: relative;
     }
 
-    .message.ai {
+    .message.system {
         background: rgba(0,0,0,0.1);
     }
     .message.user {
