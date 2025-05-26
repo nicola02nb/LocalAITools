@@ -94,16 +94,16 @@ export class ApiBase<
     if (availability === "unavailable") return;
 
     if (availability === "available") {
-      this.serviceInstance = await this.serviceClass.create({
+      this.serviceInstance = (await this.serviceClass.create({
         ...this.options,
         signal: this.controller?.signal,
-      }) as S;
+      })) as S;
     } else {
-      this.serviceInstance = await this.serviceClass.create({
+      this.serviceInstance = (await this.serviceClass.create({
         ...this.options,
         signal: this.controller?.signal,
         monitor: this.monitor,
-      }) as S;
+      })) as S;
     }
   }
 
@@ -167,7 +167,6 @@ export class ApiLanguageModel extends ApiBase<
     message: LanguageModelPrompt,
     options?: LanguageModelPromptOptions,
   ) {
-    console.log("Streaming prompt:", message, options);
     return this.serviceInstance?.promptStreaming(message, {
       ...options,
       signal: this.controller?.signal,
