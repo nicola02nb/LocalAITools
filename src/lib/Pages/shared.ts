@@ -38,6 +38,7 @@ interface Input {
 export const inputs = writable<{ [key: string]: Input }>({});
 export const settings = writable<{ [key: string]: Settings }>({});
 export const generalSettings = writable<Settings>({
+  sharedSidepanel: true,
   streamOutput: true,
   delayForStream: 25,
 });
@@ -76,7 +77,10 @@ if (chrome?.storage?.local) {
       activeTab.set(action);
       inputs.update((currentInputs) => ({
         ...currentInputs,
-        [action]: request.text,
+        [action]: {
+          ...currentInputs[action],
+          [action + "-text"]: request.text,
+        },
       }));
       sendResponse({ status: "success" });
     },

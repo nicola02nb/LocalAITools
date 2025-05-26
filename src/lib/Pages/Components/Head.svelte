@@ -7,13 +7,13 @@
     import { untrack } from "svelte";
 
     import * as nanoAI from "../../api/nano-ai";
-    import { nameToInputs, nameToSettings } from "../Page";
+    import { nameToInputs, nameToSettings } from "../InputsPreset";
     
     let { title = $bindable(), tabName = $bindable(), elaborating = $bindable(), messages = $bindable(), error = $bindable() } = $props();
 
     let inputsInit = $derived(nameToInputs[tabName as EnumAiTabs]);
     let settingsInit = $derived(nameToSettings[tabName as EnumAiTabs]);
-    let optionsOpen = $state(true);
+    let optionsOpen = $state(false);
     
     let isAvaliable = $state("unavailable");    
     let downloadProgress = $state(0);
@@ -98,8 +98,8 @@
         const images: FileList | null = target.querySelector<HTMLInputElement>("#images")?.files || null;
         const audios: FileList | null = target.querySelector<HTMLInputElement>("#audios")?.files || null;
 
-        let sourceLanguage: string = String($settings["translator"]["sourceLanguage"] || "");
-        let targetLanguage: string = String($settings["translator"]["targetLanguage"] || "");
+        let sourceLanguage: string = String($settings["translator"]?.["sourceLanguage"] || "");
+        let targetLanguage: string = String($settings["translator"]?.["targetLanguage"] || "");
 
         if (tabName !== "lm") messages = [];
 
@@ -227,7 +227,7 @@
 </script>
 
 <div class="title-container" class:exists={AI?.exists}>
-    <div>
+    <div class="inputs">
         <h1>{title}</h1>
         {#if isAvaliable === "unavailable"}
             <p class="unavailable">Unavailable</p>
@@ -285,6 +285,10 @@
     .title-container:not(.exists) * {
         pointer-events: none;
     }
+
+    .inputs {
+        width: 100%;
+    }   
 
     h1{
         margin-top: 0;
@@ -344,7 +348,7 @@
         position: relative;
         display: flex;
         transition: 0.5s;
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(0, 0, 0, 0.6);
         border-radius: 10px 0 0 10px;
         padding: 10px;
         animation: all 0.5s ease-in-out;

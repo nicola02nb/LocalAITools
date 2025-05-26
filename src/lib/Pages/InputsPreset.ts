@@ -1,7 +1,7 @@
 type InputType = {
   name: string;
   label: string;
-  type: "text" | "select" | "range";
+  type: "text" | "select" | "range" | "textarea";
   value: string | number;
   placeholder?: string;
   required?: boolean;
@@ -38,7 +38,7 @@ const lmInputs: InputType[] = [
   {
     name: "lm-text",
     label: "Message:",
-    type: "text",
+    type: "textarea",
     value: "",
     placeholder: "Enter message...",
     required: false,
@@ -101,7 +101,7 @@ const summarizerInputs: InputType[] = [
   {
     name: "summarizer-text",
     label: "Text to summarize:",
-    type: "text",
+    type: "textarea",
     value: "",
     placeholder: "Enter text to summarize...",
     required: true,
@@ -114,7 +114,7 @@ const detectorInputs: InputType[] = [
   {
     name: "detector-text",
     label: "Text to detect:",
-    type: "text",
+    type: "textarea",
     value: "",
     placeholder: "Enter text to detect language...",
     required: true,
@@ -147,7 +147,7 @@ const translatorInputs: InputType[] = [
   {
     name: "translator-text",
     label: "Text to translate:",
-    type: "text",
+    type: "textarea",
     value: "",
     placeholder: "Enter text to translate...",
     required: true,
@@ -201,7 +201,7 @@ const writerInputs: InputType[] = [
   {
     name: "writer-text",
     label: "Text to write:",
-    type: "text",
+    type: "textarea",
     value: "",
     placeholder: "Enter text to write...",
     required: true,
@@ -256,7 +256,7 @@ const rewriterInputs: InputType[] = [
   {
     name: "rewriter-text",
     label: "Text to rewrite:",
-    type: "text",
+    type: "textarea",
     value: "",
     placeholder: "Enter text to rewrite...",
     required: true,

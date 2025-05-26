@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "manifest_version": 3,
   "description": "A Chrome extension to use AI built into Chrome.",
-  "background": {
-    "service_worker": "background.js"
-  },
   "permissions": [
     "sidePanel",
     "activeTab",
@@ -14,8 +11,12 @@
     "storage"
   ],
   "minimum_chrome_version": "137",
-  "side_panel": {
-    "default_path": "index.html"
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Open Side Panel"
   },
   "commands": {
     "toggle_side_panel": {
@@ -23,10 +24,14 @@
       "description": "Toggle the side panel"
     }
   },
+  "side_panel": {
+    "default_path": "index.html"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["page.js"]
+      "js": ["overlay.js"],
+      "css": ["overlay.css"]
     }
   ]
 }

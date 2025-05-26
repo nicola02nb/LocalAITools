@@ -1,0 +1,28 @@
+#nano-ai-extension-overlay {
+  background-color: white;
+  border-radius: 5px;
+  padding: 2px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  position: absolute;
+  display: none;
+}
+#nano-ai-extension-overlay .nano-ai-extension-button {
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 5px;
+  cursor: pointer;
+  color: black;
+  margin: 1px;
+  padding: 5px 5px 0 5px;
+  width: min-content;
+  height: min-content;
+}
+#nano-ai-extension-overlay.nano-ai-extension-button:hover {
+  background-color: lightgray;
+  transition: background-color 0.3s;
+}
+#nano-ai-extension-overlay .nano-ai-extension-button.disabled {
+  background-color: lightgray;
+  cursor: not-allowed;
+}

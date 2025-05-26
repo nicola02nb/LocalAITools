@@ -20,7 +20,7 @@
     {#if messages.length > 0}
         {#each messages as message, index (index)}
             <div class="message {message.role}">
-                <h6>{message.role}</h6>
+                <h3>{message.role}</h3>
                 {#if message.role === "system"}
                     <div class="loader" class:loading={elaborating}></div>
                 {/if}
@@ -53,7 +53,7 @@
         border-radius: 10px;
     }
     .output:last-child .message > .loader.loading {
-        width: 1rem;
+        width: 10px;
         padding: 8px;
         aspect-ratio: 1;
         border-radius: 50%;
@@ -66,6 +66,9 @@
         -webkit-mask-composite: source-out;
         mask-composite: subtract;
         animation: l3 1s infinite linear;
+    }
+    .output > div > h3{
+        margin: auto 0;
     }
 
     @keyframes l3 {

@@ -1,5 +1,5 @@
 <script lang="ts">
-    let { value = $bindable(), ...props } = $props();
+    let { value = $bindable(), decription = "",...props } = $props();
 </script>
 
 <div class="input-container">
@@ -15,11 +15,16 @@
         </select>
     {:else if props.type === "checkbox"}
         <input type="checkbox" name={props.name} id={props.name} bind:checked={value}/>
+    {:else if props.type === "textarea"}
+        <textarea bind:value={value} id={props.name} {...props}></textarea>
     {:else}
         {#if props.type === "range"}
             <output for={props.name}>{value}</output>
         {/if}
         <input bind:value={value} id={props.name} {...props}/>
+    {/if}
+    {#if decription}
+        <span class="description">{decription}</span>
     {/if}
 </div>
 
@@ -36,12 +41,26 @@
         font-weight: bold;
     }
     
-    input {
-        border: 2px solid;
+    input, select, textarea {
+        border: 2px solid var(--secondary-transparent);
         border-radius: 5px;
         padding: 5px;
         margin: 3px;
         accent-color: var(--secondary);
+        width: max-content;
+    }
+
+    textarea {
+        width: 100%;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .description {
+        font-size: 0.8em;
+        font-style: italic;
+        color: var(--secondary-transparent);
+        margin-left: 10px;
     }
     
 </style>
