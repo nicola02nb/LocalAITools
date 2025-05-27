@@ -61,7 +61,7 @@ const summarizerSettings: InputType[] = [
     value: "key-points",
     options: [
       { value: "key-points", label: "Key Points" },
-      { value: "tl;dr", label: "TL;DR" },
+      { value: "tldr", label: "TL;DR" },
       { value: "teaser", label: "Teaser" },
       { value: "headline", label: "Headline" },
     ],
@@ -225,7 +225,7 @@ const rewriterSettings: InputType[] = [
     options: [
       { value: "as-is", label: "As Is" },
       { value: "more-formal", label: "More Formal" },
-      { value: "more-creative", label: "More Creative" },
+      { value: "more-casual", label: "More Casual" },
     ],
   },
   {
