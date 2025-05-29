@@ -2,11 +2,11 @@
     import Head from "./Components/Head.svelte";
     import Output from "./Components/Output.svelte";
     
-    import { activeTab, type EnumAiTabs, tabNames } from "./shared";
+    import { activeTab, type AiTab, tabNames } from "./shared";
 
     let tabName: string = $derived($activeTab);
     
-    let title = $derived(tabNames[tabName as EnumAiTabs]);
+    let title = $derived(tabNames[tabName as AiTab]);
 
     let elaborating = $state(false);
 

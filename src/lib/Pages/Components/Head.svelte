@@ -1,7 +1,7 @@
 <script lang="ts">
     import { marked } from "marked";
 
-    import { EnumAiTabs, inputs, settings, generalSettings } from "../shared";
+    import { tabActions, inputs, settings, generalSettings, type AiTab } from "../shared";
     import Input from "./Input.svelte";
     
     import { untrack } from "svelte";
@@ -11,8 +11,8 @@
     
     let { title = $bindable(), tabName = $bindable(), elaborating = $bindable(), messages = $bindable(), error = $bindable() } = $props();
 
-    let inputsInit = $derived(nameToInputs[tabName as EnumAiTabs]);
-    let settingsInit = $derived(nameToSettings[tabName as EnumAiTabs]);
+    let inputsInit = $derived(nameToInputs[tabName as AiTab]);
+    let settingsInit = $derived(nameToSettings[tabName as AiTab]);
     let optionsOpen = $state(false);
     
     let isAvaliable = $state("unavailable");    
@@ -34,7 +34,10 @@
     });
     
     function setDownloadProgress(e: { loaded: number; }) {
-        downloadProgress = e.loaded;
+        downloadProgress = Math.round(e.loaded * 100);
+        if (downloadProgress >= 100) {
+            isAvaliable = "available";
+        }
     }
 
     function reinitializeAI() {
@@ -181,7 +184,7 @@
         messages.push({ role: "system", content: [aiResponse] });
 
         let forCall: nanoAI.ModelInput = text;
-        if (tabName === "lm") {
+        if (tabName === "lm" && false) { // TODO: Fix multimodal inputs
             const lmMessage: LanguageModelMessage = {
                 role: "user",
                 content: lmInputs,
@@ -224,6 +227,20 @@
         }
         elaborating = false;
     };
+
+    function stop() {
+        AI.abort("Stopped by user");
+        elaborating = false;
+    }
+
+    function reset(){
+        $inputs[tabName] = {};
+        messages = [];
+        error = "";
+        elaborating = false;
+        downloadProgress = 0;
+        reinitializeAI();
+    }
 </script>
 
 <div class="title-container" class:exists={AI?.exists}>
@@ -232,7 +249,7 @@
         {#if isAvaliable === "unavailable"}
             <p class="unavailable">Unavailable</p>
         {:else if isAvaliable === "downloading"}
-            <p class="downloading">Downloading {Math.round(downloadProgress * 100)}%</p>
+            <p class="downloading">Downloading {downloadProgress}%</p>
         {/if}        
         <h2>Inputs</h2>
         <form onsubmit={(e) => { e.preventDefault(); submit(e); }}>
@@ -250,8 +267,9 @@
                 <label for="audios">Audios</label>
                 <input type="file" id="audios" name="audios" multiple accept="audio/*" />
             {/if}
-            <button class="submit" type="submit">Send</button>
-            <button class="stop" type="reset" onclick={() => AI.abort("Stopped by user")}>Stop</button>
+            <button class="submit" type="submit">{tabActions[tabName as AiTab]}</button>
+            <button class="stop" type="reset" onclick={stop}>Stop</button>
+            <button class="reset" type="button" onclick={reset}>Reset</button>
         </form>
     </div>
     {#if settingsInit.length > 0}
@@ -357,5 +375,32 @@
     .options-container.hidden {
         transform: translateX(97%);
         animation: all 0.5s ease-in-out;
-    }    
+    }
+
+    form > br {
+        height: 0px !important;
+    }
+
+    form > button{
+        margin: 5px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 2px solid var(--secondary-transparent-light);
+        background-color: var(--secondary);
+        color: var(--secondary);
+        cursor: pointer;
+        font-weight: bold;
+    }
+    form > button:hover {
+        filter: brightness(1.5);
+    }
+    form > button.submit {
+        background-color: #61be5580;
+    }
+    form > button.stop {
+        background-color: #be555580;
+    }
+    form > button.reset {
+        background-color: #bebc5580;
+    }
 </style>

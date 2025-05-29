@@ -38,7 +38,7 @@ const lmInputs: InputType[] = [
   {
     name: "lm-text",
     label: "Message:",
-    type: "textarea",
+    type: "text",
     value: "",
     placeholder: "Enter message...",
     required: false,

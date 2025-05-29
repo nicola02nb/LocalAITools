@@ -1,17 +1,23 @@
 import { writable } from "svelte/store";
 
-export enum EnumAiTabs {
-  lm = "lm",
-  summarizer = "summarizer",
-  detector = "detector",
-  translator = "translator",
-  writer = "writer",
-  rewriter = "rewriter",
-}
+export type AiTab =
+  | "lm"
+  | "summarizer"
+  | "detector"
+  | "translator"
+  | "writer"
+  | "rewriter";
 
-const aiTabs = [...Object.values(EnumAiTabs)];
-
-export const tabs = ["home", ...aiTabs, "settings"];
+export const tabs = [
+  "home",
+  "lm",
+  "summarizer",
+  "detector",
+  "translator",
+  "writer",
+  "rewriter",
+  "settings",
+];
 
 export const tabNames = {
   home: "Home",
@@ -22,6 +28,15 @@ export const tabNames = {
   writer: "Writer",
   rewriter: "Rewriter",
   settings: "Settings",
+};
+
+export const tabActions = {
+  lm: "Send",
+  summarizer: "Summarize",
+  detector: "Detect",
+  translator: "Translate",
+  writer: "Write",
+  rewriter: "Rewrite",
 };
 
 export type TabName = (typeof tabs)[number];

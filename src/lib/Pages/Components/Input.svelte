@@ -48,12 +48,15 @@
         margin: 3px;
         accent-color: var(--secondary);
         width: max-content;
+        font-family: inherit;
+        font-size: 1em;
     }
 
-    textarea {
+    input[type="text"],textarea{
         width: 100%;
+    }
+    textarea {
         resize: vertical;
-        font-family: inherit;
     }
 
     .description {

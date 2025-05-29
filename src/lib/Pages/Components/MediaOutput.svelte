@@ -28,7 +28,10 @@
     loadFile(content);
 </script>
 
-<div class="media-output">
+<div class={`${type} media-output`}>
+    {#if type === "text"}
+        <div class="text">{content}</div>
+    {/if}
     {#if type === "image"}
         <img src={src} alt="response" />
     {:else if type === "audio"}
