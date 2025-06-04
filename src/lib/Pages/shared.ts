@@ -45,6 +45,12 @@ export const activeTab = writable<TabName>("home");
 interface Settings {
   [key: string]: string | number | boolean;
 }
+interface GlobalSettings {
+  sharedSidepanel: boolean;
+  streamOutput: boolean;
+  delayForStream: number;
+  lmMultimodal: boolean;
+}
 
 interface Input {
   [key: string]: string;
@@ -52,10 +58,11 @@ interface Input {
 
 export const inputs = writable<{ [key: string]: Input }>({});
 export const settings = writable<{ [key: string]: Settings }>({});
-export const generalSettings = writable<Settings>({
+export const generalSettings = writable<GlobalSettings>({
   sharedSidepanel: true,
   streamOutput: true,
   delayForStream: 25,
+  lmMultimodal: false,
 });
 
 if (chrome?.storage?.local) {

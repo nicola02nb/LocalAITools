@@ -184,7 +184,7 @@
         messages.push({ role: "system", content: [aiResponse] });
 
         let forCall: nanoAI.ModelInput = text;
-        if (tabName === "lm" && false) { // TODO: Fix multimodal inputs
+        if (tabName === "lm" && $generalSettings.lmMultimodal) {
             const lmMessage: LanguageModelMessage = {
                 role: "user",
                 content: lmInputs,
@@ -261,11 +261,17 @@
                 })()}/>
             {/each}
             {#if tabName === "lm"}
-                <label for="images">Images</label>
-                <input type="file" id="images" name="images" multiple accept="image/*" />
+                <label for="useMultimodal">Multimodal</label>
+                <input type="checkbox" id="useMultimodal" bind:checked={$generalSettings.lmMultimodal} />
                 <br>
-                <label for="audios">Audios</label>
-                <input type="file" id="audios" name="audios" multiple accept="audio/*" />
+                {#if $generalSettings.lmMultimodal}
+                    <label for="images">Images</label>
+                    <input type="file" id="images" name="images" multiple accept="image/*" />
+                    <br>
+                    <label for="audios">Audios</label>
+                    <input type="file" id="audios" name="audios" multiple accept="audio/*" />
+                    <br>
+                {/if}
             {/if}
             <button class="submit" type="submit">{tabActions[tabName as AiTab]}</button>
             <button class="stop" type="reset" onclick={stop}>Stop</button>
