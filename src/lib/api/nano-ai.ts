@@ -145,14 +145,6 @@ export class ApiLanguageModel extends ApiBase<
     this.callStream = this.promptStreaming;
   }
 
-  getSupportedOptions() {
-    return {
-      initialPrompts: [{}],
-      maxTopK: 8,
-      maxTemperature: 2.0,
-    };
-  }
-
   async prompt(
     message: LanguageModelPrompt,
     options?: LanguageModelPromptOptions,
@@ -214,15 +206,6 @@ export class ApiSummarizer extends ApiBase<
     super("Summarizer", options as SummarizerCreateOptions);
     this.call = this.summarize;
     this.callStream = this.summarizeStreaming;
-  }
-
-  getSupportedOptions() {
-    return {
-      sharedContext: [""],
-      type: ["key-points", "tl;dr", "teaser", "headline"],
-      format: ["markdown", "plain-text"],
-      length: ["short", "medium", "long"],
-    };
   }
 
   async summarize(text: string, options?: SummarizerSummarizeOptions) {
