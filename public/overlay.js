@@ -53,7 +53,7 @@ class Overlay {
   show(x, y) {
     for (const button of this.buttons) {
       const action = button.getAttribute("action");
-      if (!window.ai[action]) {
+      if (!self[mapActions[action]]) {
         button.classList.add("disabled");
       }
       button.classList.remove("disabled");
