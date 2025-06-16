@@ -50,6 +50,8 @@ interface GlobalSettings {
   streamOutput: boolean;
   delayForStream: number;
   lmMultimodal: boolean;
+  overlayEnabled: boolean;
+  overlayHideOnClick: boolean;
 }
 
 interface Input {
@@ -63,6 +65,8 @@ export const generalSettings = writable<GlobalSettings>({
   streamOutput: true,
   delayForStream: 25,
   lmMultimodal: false,
+  overlayEnabled: true,
+  overlayHideOnClick: true,
 });
 
 if (chrome?.storage?.local) {

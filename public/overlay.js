@@ -22,37 +22,50 @@ const mapActions = {
   },
 };
 
-function createActionButton(action) {
-  let button = document.createElement("button");
-  button.innerHTML = mapActions[action]["icon"];
-  button.classList.add("nano-ai-extension-button");
-  button.setAttribute("action", action);
-  button.title = mapActions[action]["text"];
-  button.onclick = function () {
-    let selection = document.getSelection();
-    if (!this.classList.contains("disabled")) {
-      const port = chrome.runtime.connect();
-      port.postMessage({ action: action, text: selection.toString() });
-    }
-    overlay.hide();
-  };
-  return button;
-}
-
 class Overlay {
-  constructor() {
+  isEnabled;
+  hideOnClick;
+
+  overlay;
+  buttons;
+
+  shown;
+
+  hideTimeout;
+
+  constructor({ isEnabled = true, hideOnClick = true } = {}) {
+    this.isEnabled = isEnabled;
+    this.hideOnClick = hideOnClick;
     this.overlay = document.createElement("div");
     this.overlay.id = "nano-ai-extension-overlay";
     this.buttons = [];
+    this.shown = false;
+    this.hideTimeout = null;
     for (let action of actions) {
-      const button = createActionButton(action);
+      const button = this.createActionButton(action);
       this.buttons.push(button);
       this.overlay.appendChild(button);
     }
     document.body.appendChild(this.overlay);
   }
 
-  show(x, y) {
+  createActionButton(action) {
+    let button = document.createElement("button");
+    button.innerHTML = mapActions[action]["icon"];
+    button.classList.add("nano-ai-extension-button");
+    button.setAttribute("action", action);
+    button.title = mapActions[action]["text"];
+    button.onclick = () => {
+      let selection = document.getSelection();
+      if (!this.classList.contains("disabled")) {
+        const port = chrome.runtime.connect();
+        port.postMessage({ action: action, text: selection.toString() });
+      }
+      this.hide();
+    };
+    return button;
+  }
+  updateButtons() {
     for (const button of this.buttons) {
       const action = button.getAttribute("action");
       if (!self[mapActions[action].className]) {
@@ -61,17 +74,71 @@ class Overlay {
         button.classList.remove("disabled");
       }
     }
+  }
 
-    this.overlay.style.display = "block";
-    this.overlay.style.top = y + "px";
-    this.overlay.style.left = x + "px";
+  setEnabled(enabled) {
+    if (enabled) {
+      this.isEnabled = true;
+    } else {
+      this.isEnabled = false;
+      this.hide();
+    }
+  }
+  setHideOnClick(hideOnClick) {
+    if (hideOnClick) {
+      this.hideOnClick = true;
+      this.overlay.onclick = () => {
+        this.hide();
+      };
+    }
+    else {
+      this.hideOnClick = false;
+      this.overlay.onclick = null;
+    }
+  }
+
+  show(x, y) {
+    if (!this.isEnabled) return;
+
+    this.updateButtons();
+
+    if (!this.shown) {
+      this.overlay.classList.remove("hidden");
+    }
+
+    this.move(x, y);
+
+    this.shown = true;
+    this.startTimeoutHide(5000);
   }
   hide() {
-    this.overlay.style.display = "none";
+    this.shown = false;
+    this.overlay.classList.add("hidden");
+    this.stopTimeoutHide();
+  }
+  move(x, y) {
+    this.overlay.style.left = `${x}px`;
+    this.overlay.style.top = `${y}px`;
+  }
+
+  startTimeoutHide(timeout) {
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+    }
+    this.hideTimeout = setTimeout(() => {
+      this.hide();
+    }, timeout);
+  }
+  stopTimeoutHide() {
+    if (this.hideTimeout) {
+      clearTimeout(this.hideTimeout);
+      this.hideTimeout = null;
+    }
   }
 }
 
 const overlay = new Overlay();
+
 document.addEventListener("selectionchange", function () {
   let selection = document.getSelection();
   if (!selection.isCollapsed) {
@@ -87,5 +154,23 @@ document.addEventListener("selectionchange", function () {
     overlay.show(rect.right + window.scrollX, rect.bottom + window.scrollY);
   } else {
     overlay.hide();
+  }
+});
+
+chrome.storage.local.get("generalSettings").then((result) => {
+    if (result.generalSettings) {
+      const settings = result.generalSettings;
+      overlay.setEnabled(settings.overlayEnabled);
+      overlay.setHideOnClick(settings.hideOnClick);
+    }
+});
+
+chrome.storage.local.onChanged.addListener((changes) => {
+  if (changes.generalSettings) {
+    const settings = changes.generalSettings.newValue;
+    if (settings) {
+      overlay.setEnabled(settings.overlayEnabled);
+      overlay.setHideOnClick(settings.overlayHideOnClick);
+    }
   }
 });

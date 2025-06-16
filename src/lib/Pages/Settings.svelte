@@ -12,4 +12,7 @@
     <Input type="number" name="delayForStream" label="Delay between words(ms):" bind:value={$generalSettings.delayForStream} step=25 min=0/>
     <h2>Language Model</h2>
     <Input type="checkbox" name="lmMultimodal" label="Use multimodal:" bind:value={$generalSettings.lmMultimodal}/>
+    <h2>Overlay</h2>
+    <Input type="checkbox" name="overlayEnabled" label="Overlay enabled:" bind:value={$generalSettings.overlayEnabled}/>
+    <Input type="checkbox" name="overlayHideOnClick" label="Hide overlay on button click:" bind:value={$generalSettings.overlayHideOnClick}/>
 </main>
