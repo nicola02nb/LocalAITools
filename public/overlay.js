@@ -38,6 +38,7 @@ class Overlay {
     this.hideOnClick = hideOnClick;
     this.overlay = document.createElement("div");
     this.overlay.id = "nano-ai-extension-overlay";
+    this.overlay.classList.add("hidden");
     this.buttons = [];
     this.shown = false;
     this.hideTimeout = null;
@@ -90,8 +91,7 @@ class Overlay {
       this.overlay.onclick = () => {
         this.hide();
       };
-    }
-    else {
+    } else {
       this.hideOnClick = false;
       this.overlay.onclick = null;
     }
@@ -158,11 +158,11 @@ document.addEventListener("selectionchange", function () {
 });
 
 chrome.storage.local.get("generalSettings").then((result) => {
-    if (result.generalSettings) {
-      const settings = result.generalSettings;
-      overlay.setEnabled(settings.overlayEnabled);
-      overlay.setHideOnClick(settings.hideOnClick);
-    }
+  if (result.generalSettings) {
+    const settings = result.generalSettings;
+    overlay.setEnabled(settings.overlayEnabled);
+    overlay.setHideOnClick(settings.hideOnClick);
+  }
 });
 
 chrome.storage.local.onChanged.addListener((changes) => {
