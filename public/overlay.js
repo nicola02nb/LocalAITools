@@ -58,7 +58,7 @@ class Overlay {
     button.title = mapActions[action]["text"];
     button.onclick = () => {
       let selection = document.getSelection();
-      if (!this.classList.contains("disabled")) {
+      if (!this.overlay.classList.contains("disabled")) {
         const port = chrome.runtime.connect();
         port.postMessage({ action: action, text: selection.toString() });
       }
