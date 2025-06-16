@@ -59,7 +59,7 @@ export class ApiBase<
     this.options = options;
     this.serviceClass = (self as never)[serviceType];
     this.controller = new AbortController();
-    this.exists = !!this.serviceClass;
+    this.exists = this.serviceClass !== undefined;
     this.serviceInstance = this.serviceClass;
   }
 

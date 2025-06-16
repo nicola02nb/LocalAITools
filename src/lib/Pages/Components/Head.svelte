@@ -42,7 +42,13 @@
 
     function reinitializeAI() {
         if (tabName === "translator"){
-            isAvaliable = "toCheck";
+            if (!AI.exists){
+                isAvaliable = "unavailable";
+            }
+            else {
+                isAvaliable = "toCheck";
+            }
+            
             return;
         }
         AI.availability().then(async (status) => {
@@ -248,8 +254,14 @@
         <h1>{title}</h1>
         {#if isAvaliable === "unavailable"}
             <p class="unavailable">Unavailable</p>
+        {:else if isAvaliable === "toCheck"}
+            <p class="toCheck">To check</p>
         {:else if isAvaliable === "downloading"}
-            <p class="downloading">Downloading {downloadProgress}%</p>
+            <p class="downloading">Downloading {downloadProgress}%</p>        
+        {:else if isAvaliable === "downloadable"}
+            <p class="downloadable">Downloadable</p>
+        {:else if isAvaliable === "available"}
+            <p class="available">Available</p>
         {/if}        
         <h2>Inputs</h2>
         <form onsubmit={(e) => { e.preventDefault(); submit(e); }}>
@@ -329,8 +341,13 @@
         font-size: 0.8em;
     }
 
-    .downloading {
+    .downloadable ,.downloading, .toCheck {
         color: #ffff00;
+        font-size: 0.8em;
+    }
+
+    .available {
+        color: green;
         font-size: 0.8em;
     }
 

@@ -23,6 +23,6 @@
   transition: background-color 0.3s;
 }
 #nano-ai-extension-overlay .nano-ai-extension-button.disabled {
-  background-color: lightgray;
+  filter: brightness(0.5);
   cursor: not-allowed;
 }
