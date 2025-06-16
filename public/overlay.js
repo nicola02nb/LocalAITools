@@ -59,7 +59,7 @@ class Overlay {
         button.classList.add("disabled");
       } else {
         button.classList.remove("disabled");
-      }      
+      }
     }
 
     this.overlay.style.display = "block";
