@@ -1,8 +1,11 @@
-type InputType = {
+export type InputValue = string | number | boolean;
+
+export type InputType = {
   name: string;
   label: string;
-  type: "text" | "select" | "range" | "textarea";
-  value: string | number;
+  type: "text" | "select" | "range" | "textarea" | "checkbox";
+  multiple?: boolean;
+  value: InputValue;
   placeholder?: string;
   required?: boolean;
   options?: { value: string; label: string }[];
@@ -802,6 +805,7 @@ const summarizerSettings: InputType[] = [
     name: "type",
     label: "Type:",
     type: "select",
+    multiple: false,
     value: "key-points",
     options: [
       { value: "key-points", label: "Key Points" },
@@ -814,6 +818,7 @@ const summarizerSettings: InputType[] = [
     name: "format",
     label: "Format:",
     type: "select",
+    multiple: false,
     value: "plain-text",
     options: [
       { value: "plain-text", label: "Plain Text" },
@@ -824,6 +829,7 @@ const summarizerSettings: InputType[] = [
     name: "length",
     label: "Length:",
     type: "select",
+    multiple: false,
     value: "short",
     options: [
       { value: "short", label: "Short" },
@@ -872,6 +878,7 @@ const translatorSettings: InputType[] = [
     name: "sourceLanguage",
     label: "Source:",
     type: "select",
+    multiple: false,
     value: "auto",
     options: [{ value: "auto", label: "Auto Detect" }, ...languages],
   },
@@ -879,6 +886,7 @@ const translatorSettings: InputType[] = [
     name: "targetLanguage",
     label: "Target:",
     type: "select",
+    multiple: false,
     value: "auto",
     options: [{ value: "auto", label: "System Language (Auto)" }, ...languages],
   },
@@ -908,6 +916,7 @@ const writerSettings: InputType[] = [
     name: "tone",
     label: "Tone:",
     type: "select",
+    multiple: false,
     value: "neutral",
     options: [
       { value: "formal", label: "Formal" },
@@ -919,6 +928,7 @@ const writerSettings: InputType[] = [
     name: "length",
     label: "Length:",
     type: "select",
+    multiple: false,
     value: "short",
     options: [
       { value: "short", label: "Short" },
@@ -930,6 +940,7 @@ const writerSettings: InputType[] = [
     name: "format",
     label: "Format:",
     type: "select",
+    multiple: false,
     value: "plain-text",
     options: [
       { value: "plain-text", label: "Plain Text" },
@@ -962,6 +973,7 @@ const rewriterSettings: InputType[] = [
     name: "tone",
     label: "Tone:",
     type: "select",
+    multiple: false,
     value: "as-is",
     options: [
       { value: "as-is", label: "As Is" },
@@ -972,7 +984,8 @@ const rewriterSettings: InputType[] = [
   {
     name: "length",
     label: "Length:",
-    type: "select",
+    type: "select",    
+    multiple: false,
     value: "as-is",
     options: [
       { value: "as-is", label: "As Is" },
@@ -984,6 +997,7 @@ const rewriterSettings: InputType[] = [
     name: "format",
     label: "Format:",
     type: "select",
+    multiple: false,
     value: "plain-text",
     options: [
       { value: "as-is", label: "As Is" },
@@ -1004,6 +1018,42 @@ const rewriterInputs: InputType[] = [
   },
 ];
 
+const proofreaderSettings: InputType[] = [
+  {
+    name: "includeCorrectionExplanations",
+    label: "Include Correction Explanations:",
+    type: "checkbox",
+    value: false,
+  },
+  {
+    name: "expectedInputLanguages",
+    label: "Expected Input Languages:",
+    type: "select",
+    multiple: true,
+    value: "auto",
+    options: [{ value: "auto", label: "Auto Detect" }, ...languages],
+  },
+  {
+    name: "correctionExplanationLanguage",
+    label: "Correction Explanation Language:",
+    type: "select",
+    multiple: false,
+    value: "auto",
+    options: [{ value: "auto", label: "Auto Detect" }, ...languages],
+  },
+];
+
+const proofreaderInputs: InputType[] = [
+  {
+    name: "proofreader-text",
+    label: "Text to proofread:",
+    type: "textarea",
+    value: "",
+    placeholder: "Enter text to proofread...",
+    required: true,
+  },
+];
+
 export const nameToInputs: { [key: string]: InputType[] } = {
   lm: lmInputs,
   summarizer: summarizerInputs,
@@ -1011,6 +1061,7 @@ export const nameToInputs: { [key: string]: InputType[] } = {
   translator: translatorInputs,
   writer: writerInputs,
   rewriter: rewriterInputs,
+  proofreader: proofreaderInputs
 };
 
 export const nameToSettings = {
@@ -1020,4 +1071,5 @@ export const nameToSettings = {
   translator: translatorSettings,
   writer: writerSettings,
   rewriter: rewriterSettings,
+  proofreader: proofreaderSettings
 };

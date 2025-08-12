@@ -339,6 +339,28 @@ export class ApiRewriter extends ApiBase<
   }
 }
 
+export class Proofreader extends ApiBase<
+  Proofreader & Model,
+  ProofreaderCreateOptions,
+  ProofreaderRewriteOptions,
+  string,
+  Proofreader
+> {
+  constructor(options?: CreateOptions) {
+    super("Proofreader", options as ProofreaderCreateOptions);
+    this.call = this.proofread;
+    /* this.callStream = this.proofreadStreaming; */
+  }
+
+  async proofread(text: string, options?: ProofreaderOptions) {
+    return await this.serviceInstance?.proofread(text, options);
+  }
+
+  /* proofreadStreaming(text: string, options?: ProofreaderOptions) {
+    return this.serviceInstance?.proofreadStreaming(text, options);
+  } */
+}
+
 export const mapNameToClass = {
   LanguageModel: ApiLanguageModel,
   Summarizer: ApiSummarizer,
@@ -346,4 +368,5 @@ export const mapNameToClass = {
   Translator: ApiTranslator,
   Writer: ApiWriter,
   Rewriter: ApiRewriter,
+  Proofreader: Proofreader,
 };

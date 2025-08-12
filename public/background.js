@@ -21,6 +21,7 @@ const menuItems = [
   { id: "detector", title: "Language Detector" },
   { id: "translate", title: "Translate" },
   { id: "rewriter", title: "Rewrite" },
+  { id: "proofreader", title: "Proofread" },
 ];
 chrome.runtime.onInstalled.addListener(() => {
   menuItems.forEach(({ id, title }) => {
@@ -65,12 +66,7 @@ chrome.commands.onCommand.addListener((command, tab) => {
 
 // Context menu click handler
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (
-    info.menuItemId === "summarizer" ||
-    info.menuItemId === "detector" ||
-    info.menuItemId === "translator" ||
-    info.menuItemId === "rewriter"
-  ) {
+  if (info.menuItemId in menuItems.map((item) => item.id)) {
     setSidepanelVisible(true, tab, () => {
       sendMessage({ action: info.menuItemId, text: info.selectionText });
     });

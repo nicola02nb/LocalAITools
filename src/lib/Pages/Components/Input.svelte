@@ -1,30 +1,41 @@
 <script lang="ts">
-    let { value = $bindable(), decription = "",...props } = $props();
+    let { value = $bindable(), description = "", ...props  } = $props();
 </script>
 
 <div class="input-container">
     <label for="{props.name}">{props.label}</label>
     {#if props.type === "select"}
-        <select name={props.name} id={props.name} bind:value={value}>
-            {#if props.options.length > 0}
-                <option value="" disabled selected>Select an option</option>
-            {/if}
-            {#each props.options as option (option.value)}
-                <option value={option.value}>{option.label}</option>
-            {/each}
-        </select>
-    {:else if props.type === "checkbox"}
+        {#if props.multiple}
+            <select name={props.name} id={props.name} bind:value={value} multiple>
+                {#if props.options && props.options.length > 0}
+                    <option value="" disabled selected>Select an option</option>
+                    {#each props.options as option (option.value)}
+                        <option value={option.value}>{option.label}</option>
+                    {/each}
+                {/if}
+            </select>
+        {:else}
+            <select name={props.name} id={props.name} bind:value={value}>
+                {#if props.options && props.options.length > 0}
+                    <option value="" disabled selected>Select an option</option>
+                    {#each props.options as option (option.value)}
+                        <option value={option.value}>{option.label}</option>
+                    {/each}
+                {/if}
+            </select>
+        {/if}
+    {:else if props.type === "checkbox" && typeof value === "boolean"}
         <input type="checkbox" name={props.name} id={props.name} bind:checked={value}/>
-    {:else if props.type === "textarea"}
-        <textarea bind:value={value} id={props.name} {...props}></textarea>
+    {:else if props.type === "textarea" && typeof props.value === "string"}
+        <textarea bind:value={value} id={props.name} name={props.name} placeholder={props.placeholder} required={props.required}></textarea>
     {:else}
         {#if props.type === "range"}
             <output for={props.name}>{value}</output>
         {/if}
         <input bind:value={value} id={props.name} {...props}/>
     {/if}
-    {#if decription}
-        <span class="description">{decription}</span>
+    {#if description}
+        <span class="description">{description}</span>
     {/if}
 </div>
 

@@ -30,6 +30,14 @@
   transition: background-color 0.3s;
 }
 #nano-ai-extension-overlay .nano-ai-extension-button.disabled {
-  filter: brightness(0.8);
+  filter: brightness(0.5);
   cursor: not-allowed;
+}
+#nano-ai-extension-overlay .nano-ai-extension-button:active {
+  filter: brightness(0.8);
+}
+#nano-ai-extension-overlay svg {
+  width: 18px;
+  height: 18px;
+  fill: black;
 }

@@ -224,6 +224,8 @@
                 }
                 output += `</table>`;
                 aiResponse.value = output;
+            } else if (tabName === "proofreader") {
+                aiResponse.value = res.correctedInput;
             } else {
                 res = res as string;
                 aiResponse.value = await marked(res);

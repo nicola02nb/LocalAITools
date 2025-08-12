@@ -8,7 +8,7 @@ A Chrome extension to interact with the Nano AI API built into Chrome.
 - 📃 AI Summarization - Get concise summaries of content
 - 🗺️ AI Translation - Translate text between languages
 - 🔎 AI Language Detection - Identify the language of text
-- 🖊️ AI Writing/Rewriting - Generate and improve content
+- 🖊️ AI Writing/Rewriting/Proofreading - Generate and improve content
 - 🔒 Privacy Focused - All processing happens locally on your device
 - 🌐 Universal Access - Works anywhere in Chrome
 - ⭕ Offline Capability - No internet connection required
@@ -31,6 +31,7 @@ Navigate to Chrome flags (`chrome://flags`) and enable:
 - [Language Detection API](chrome://flags/#language-detection-api)
 - [Writer API](chrome://flags/#writer-api-for-gemini-nano)
 - [Rewriter API](chrome://flags/#rewriter-api-for-gemini-nano)
+- [Proofreader API](chrome://flags/#proofreader-api-for-gemini-nano)
 
 ## Disclaimer
 

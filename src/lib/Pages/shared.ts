@@ -6,7 +6,8 @@ export type AiTab =
   | "detector"
   | "translator"
   | "writer"
-  | "rewriter";
+  | "rewriter"
+  | "proofreader";
 
 export const tabs = [
   "home",
@@ -16,7 +17,8 @@ export const tabs = [
   "translator",
   "writer",
   "rewriter",
-  "settings",
+  "proofreader",
+  "settings"
 ];
 
 export const tabNames = {
@@ -27,6 +29,7 @@ export const tabNames = {
   translator: "Translator",
   writer: "Writer",
   rewriter: "Rewriter",
+  proofreader: "Proofreader",
   settings: "Settings",
 };
 
@@ -37,6 +40,7 @@ export const tabActions = {
   translator: "Translate",
   writer: "Write",
   rewriter: "Rewrite",
+  proofreader: "Proofread",
 };
 
 export type TabName = (typeof tabs)[number];
