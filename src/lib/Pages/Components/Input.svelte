@@ -4,7 +4,9 @@
 
 <div class="input-container">
     <label for="{props.name}">{props.label}</label>
-    {#if props.type === "select"}
+    {#if props.type === "button"}
+        <button id={props.name} {...props}>{props.placeholder}</button>
+    {:else if props.type === "select"}
         {#if props.multiple}
             <select name={props.name} id={props.name} bind:value={value} multiple>
                 {#if props.options && props.options.length > 0}

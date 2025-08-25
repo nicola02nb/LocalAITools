@@ -1,8 +1,10 @@
 <script lang="ts">
+  import type { MessagesTypes } from "../../stores/PageData";
   import CopyButton from "./CopyButton.svelte";
   import MediaOutput from "./MediaOutput.svelte";
 
-    let { error = "", content="", messages = [], elaborating = true } = $props();
+    let { error = "", content="", messages = $bindable(), elaborating = true }
+        :{ error?: string; content?: string; messages?: MessagesTypes; elaborating?: boolean; } = $props();
 
     $effect(() => {
         if (!elaborating){
@@ -14,7 +16,7 @@
     });
 
     $effect(() => {
-        if (messages.length > 0) {
+        if (messages && messages.length > 0) {
             const lastMessageElement = document.getElementById(`message-${messages.length - 1}`);
             if (lastMessageElement) {
                 lastMessageElement.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -27,27 +29,38 @@
     {#if error}
         <div class="error">{error}</div>
     {/if}
-    {#if messages.length > 0}
+    {#if messages && messages.length > 0}
         {#each messages as message, index (index)}
-            <div id="message-{index}" class="message {message.role}">
-                <div class="header">
-                    <h3>{message.role}</h3>
-                    <CopyButton contentId="message-{index}" />
-                </div>
-                <div class="content">
-                    {#if message.role === "system"}
-                        <div class="loader" class:loading={elaborating}></div>
-                    {/if}
-                    {#each message.content as input, index (index)}
-                        {#if input.type === "text"}
-                            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                            <div class="text">{@html input.value}</div>
-                        {:else}
-                            <MediaOutput type={input.type} content={input.value} />
+            {#if typeof message === "string"}
+                <div class="text" id="message-{index}">{@html message}</div>
+            {:else}
+                <div id="message-{index}" class="message {typeof message === "string" ? '' : ('role' in message ? (message.role ?? '') : '')}">
+                    <div class="header">
+                        {#if 'role' in message}
+                            <h3>{message.role}</h3>
                         {/if}
-                    {/each}
+                        <CopyButton contentId="message-{index}" />
+                    </div>
+                    <div class="content">
+                        {#if 'role' in message && message.role === "assistant"}
+                            <div class="loader" class:loading={elaborating}></div>
+                        {/if}
+                        {#if 'content' in message}
+                            {#each message.content as input, index (index)}
+                                {#if typeof input === "string"}
+                                    <div class="text">{@html input}</div>
+                                {:else if input.type === "text"}
+                                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                                    <div class="text">{@html input.value}</div>
+                                {:else}
+                                    <MediaOutput type={input.type} content={input.value} />
+                                {/if}
+                            {/each}
+                        {/if}
+                    </div>
                 </div>
-            </div>
+            {/if}
+            
         {/each}
     {:else if content}
         <div class="loader" class:loading={elaborating}></div>
@@ -100,7 +113,7 @@
         background: rgba(0,0,0,0.1);
         position: relative;
     }
-    .message.system {
+    .message.assistant {
         background: rgba(0,0,0,0.1);
     }
     .message.user {

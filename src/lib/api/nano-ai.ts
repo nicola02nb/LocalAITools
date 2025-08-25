@@ -15,24 +15,28 @@ type Service =
   | (LanguageDetector & Model)
   | (Translator & Model)
   | (Writer & Model)
-  | (Rewriter & Model);
+  | (Rewriter & Model)
+  | (Proofreader & Model);
 type CreateOptions =
   | LanguageModelCreateOptions
   | SummarizerCreateOptions
   | TranslatorCreateOptions
   | WriterCreateOptions
-  | RewriterCreateOptions;
+  | RewriterCreateOptions
+  | ProofreaderCreateOptions;
 type CallOptions =
   | LanguageModelPromptOptions
   | SummarizerSummarizeOptions
   | TranslatorTranslateOptions
   | WriterWriteOptions
-  | RewriterRewriteOptions;
-export type ModelInput = LanguageModelPrompt | string;
-export type ModelOutput = LanguageDetectionResult[] | string | undefined;
+  | RewriterRewriteOptions
+  | ProofreaderProofreadOptions;
+export type ModelInput = string | LanguageModelPrompt;
+export type ModelOutput = string | LanguageModelMessage | LanguageDetectionResult[] | ProofreaderProofreadResult;
 
 type CallbackDownload = (ev: ProgressEvent<EventTarget>) => void;
 
+const serviceNotAvailable = "Ai service is not available";
 export class ApiBase<
   S extends Service,
   C extends CreateOptions,
@@ -47,8 +51,8 @@ export class ApiBase<
   serviceClass: S;
   serviceInstance?: S;
 
-  call?: (message: I, options?: CO) => Promise<O | undefined>;
-  callStream?: (message: I, options?: CO) => ReadableStream<O> | undefined;
+  call?: (message: I, options?: CO) => Promise<O>;
+  callStream?: (message: I, options?: CO) => ReadableStream<O>;
   controller?: AbortController;
 
   monitor?: CreateMonitorCallback;
@@ -80,7 +84,7 @@ export class ApiBase<
   async availability(options = this.options) {
     if (!this.exists || !this.serviceName || !this.serviceClass || !this)
       return "unavailable";
-    if (this.serviceName === "Translator")
+    if (this.serviceName === "Translator" || this.serviceName === "Proofreader")
       return await this.serviceClass.availability(options);
     else return await this.serviceClass.availability();
   }
@@ -115,7 +119,10 @@ export class ApiBase<
   }
 
   async measureInputUsage(text: string, options?: CallOptions) {
-    return await this.serviceInstance?.measureInputUsage(text, options);
+    if (this.serviceInstance && 'measureInputUsage' in this.serviceInstance) {
+      return await this.serviceInstance.measureInputUsage(text, options);
+    }
+    return undefined;
   }
 
   abort(message: string = "Aborted") {
@@ -129,17 +136,17 @@ export class ApiBase<
   }
 }
 
-export class ApiLanguageModel extends ApiBase<
+export class ApiPrompt extends ApiBase<
   LanguageModel & Model,
   LanguageModelCreateOptions,
   LanguageModelPromptOptions,
-  ModelInput,
+  LanguageModelPrompt,
   string
 > {
   constructor(options?: CreateOptions) {
     super("LanguageModel", {
       ...(options as LanguageModelCreateOptions),
-      expectedInputs: [{ type: "text" }, { type: "audio" }, { type: "image" }],
+      expectedInputs: [{ type: "text" }, { type: "image" }],
     });
     this.call = this.prompt;
     this.callStream = this.promptStreaming;
@@ -149,7 +156,8 @@ export class ApiLanguageModel extends ApiBase<
     message: LanguageModelPrompt,
     options?: LanguageModelPromptOptions,
   ) {
-    return await this.serviceInstance?.prompt(message, {
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return await this.serviceInstance.prompt(message, {
       ...options,
       signal: this.controller?.signal,
     });
@@ -159,7 +167,8 @@ export class ApiLanguageModel extends ApiBase<
     message: LanguageModelPrompt,
     options?: LanguageModelPromptOptions,
   ) {
-    return this.serviceInstance?.promptStreaming(message, {
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return this.serviceInstance.promptStreaming(message, {
       ...options,
       signal: this.controller?.signal,
     });
@@ -200,7 +209,7 @@ export class ApiSummarizer extends ApiBase<
   SummarizerCreateOptions,
   SummarizerSummarizeOptions,
   string,
-  string | undefined
+  string
 > {
   constructor(options?: CreateOptions) {
     super("Summarizer", options as SummarizerCreateOptions);
@@ -209,11 +218,13 @@ export class ApiSummarizer extends ApiBase<
   }
 
   async summarize(text: string, options?: SummarizerSummarizeOptions) {
-    return await this.serviceInstance?.summarize(text, options);
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return await this.serviceInstance.summarize(text, options);
   }
 
   summarizeStreaming(text: string, options?: SummarizerSummarizeOptions) {
-    return this.serviceInstance?.summarizeStreaming(text, options);
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return this.serviceInstance.summarizeStreaming(text, options);
   }
 
   setSharedContext(sharedContext: string) {
@@ -239,7 +250,7 @@ export class ApiLanguageDetector extends ApiBase<
   LanguageDetectorCreateOptions,
   LanguageDetectorDetectOptions,
   string,
-  LanguageDetectionResult[]
+  LanguageDetectionResult[] | string
 > {
   constructor(options?: CreateOptions) {
     super("LanguageDetector", options as LanguageDetectorCreateOptions);
@@ -247,7 +258,7 @@ export class ApiLanguageDetector extends ApiBase<
   }
 
   async detect(text: string, options?: LanguageDetectorDetectOptions) {
-    return await this.serviceInstance?.detect(text, options);
+    return await this.serviceInstance?.detect(text, options) || serviceNotAvailable;
   }
 }
 
@@ -278,11 +289,13 @@ export class ApiTranslator extends ApiBase<
   }
 
   async translate(text: string) {
-    return await this.serviceInstance?.translate(text);
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return await this.serviceInstance.translate(text);
   }
 
   translateStreaming(text: string) {
-    return this.serviceInstance?.translateStreaming(text);
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return this.serviceInstance.translateStreaming(text);
   }
 }
 
@@ -300,11 +313,13 @@ export class ApiWriter extends ApiBase<
   }
 
   async write(text: string, options?: WriterWriteOptions) {
-    return await this.serviceInstance?.write(text, options);
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return await this.serviceInstance.write(text, options);
   }
 
   writeStreaming(text: string, options?: WriterWriteOptions) {
-    return this.serviceInstance?.writeStreaming(text, options);
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return this.serviceInstance.writeStreaming(text, options);
   }
 
   setTone(tone: WriterTone) {
@@ -331,42 +346,49 @@ export class ApiRewriter extends ApiBase<
   }
 
   async rewrite(text: string, options?: RewriterRewriteOptions) {
-    return await this.serviceInstance?.rewrite(text, options);
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return await this.serviceInstance.rewrite(text, options);
   }
 
   rewriteStreaming(text: string, options?: RewriterRewriteOptions) {
-    return this.serviceInstance?.rewriteStreaming(text, options);
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return this.serviceInstance.rewriteStreaming(text, options);
   }
 }
 
-export class Proofreader extends ApiBase<
+export class ApiProofreader extends ApiBase<
   Proofreader & Model,
   ProofreaderCreateOptions,
-  ProofreaderRewriteOptions,
+  ProofreaderProofreadOptions,
   string,
-  Proofreader
+  ProofreaderProofreadResult
 > {
   constructor(options?: CreateOptions) {
     super("Proofreader", options as ProofreaderCreateOptions);
     this.call = this.proofread;
-    /* this.callStream = this.proofreadStreaming; */
   }
 
-  async proofread(text: string, options?: ProofreaderOptions) {
-    return await this.serviceInstance?.proofread(text, options);
+  areLanguagesChanged(expectedInputLanguages: string[], correctionExplanationLanguage: string) {
+    return (
+      this.serviceInstance?.expectedInputLanguages === undefined ||
+      this.serviceInstance?.correctionExplanationLanguage === undefined ||
+      this.serviceInstance?.expectedInputLanguages !== expectedInputLanguages ||
+      this.serviceInstance?.correctionExplanationLanguage !== correctionExplanationLanguage
+    );
   }
 
-  /* proofreadStreaming(text: string, options?: ProofreaderOptions) {
-    return this.serviceInstance?.proofreadStreaming(text, options);
-  } */
+  async proofread(text: string, options?: ProofreaderProofreadOptions) {
+    if (!this.serviceInstance) throw new Error(serviceNotAvailable);
+    return await this.serviceInstance.proofread(text, options);
+  }
 }
 
 export const mapNameToClass = {
-  LanguageModel: ApiLanguageModel,
+  Prompt: ApiPrompt,
   Summarizer: ApiSummarizer,
   LanguageDetector: ApiLanguageDetector,
   Translator: ApiTranslator,
   Writer: ApiWriter,
   Rewriter: ApiRewriter,
-  Proofreader: Proofreader,
+  Proofreader: ApiProofreader,
 };

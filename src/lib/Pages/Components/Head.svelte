@@ -1,20 +1,26 @@
 <script lang="ts">
     import { marked } from "marked";
 
-    import { tabActions, inputs, settings, generalSettings, type AiTab } from "../shared";
+    import { type AiTab, tabActions, apiDocs } from "../../stores/ActiveTab";
+    import { generalSettings } from "../../stores/Settings";
+    import { inputs, settings, type MessagesTypes } from "../../stores/PageData";
     import Input from "./Input.svelte";
     
     import { untrack } from "svelte";
 
     import * as nanoAI from "../../api/nano-ai";
-    import { nameToInputs, nameToSettings } from "../InputsPreset";
+    import { nameToInputs, nameToSettings } from "../../stores/InputsPreset";
     
-    let { title = $bindable(), tabName = $bindable(), elaborating = $bindable(), messages = $bindable(), error = $bindable() } = $props();
+    let { title = $bindable(), tabName = $bindable(), elaborating = $bindable(), messages = $bindable(), error = $bindable() }
+        :{ title: string; tabName: AiTab; elaborating: boolean; messages: MessagesTypes; error: string; } = $props();
 
-    let inputsInit = $derived(nameToInputs[tabName as AiTab]);
-    let settingsInit = $derived(nameToSettings[tabName as AiTab]);
+    let inputsInit = $derived(nameToInputs[tabName]);
+    let settingsInit = $derived(nameToSettings[tabName]);
     let optionsOpen = $state(false);
-    
+
+    let multimodalImages: FileList | null = $state(null);
+    let multimodalAudios: FileList | null = $state(null);
+
     let isAvaliable = $state("unavailable");    
     let downloadProgress = $state(0);
 
@@ -25,12 +31,13 @@
     });
 
     $effect.pre(() => {
-        if (tabName === "home" && tabName === "settings") return;
         error = "";
         messages = [];
         downloadProgress = 0;
         isAvaliable = "unavailable";
         elaborating = false;
+        multimodalImages = null;
+        multimodalAudios = null;
     });
     
     function setDownloadProgress(e: { loaded: number; }) {
@@ -41,14 +48,13 @@
     }
 
     function reinitializeAI() {
-        if (tabName === "translator"){
+        if (tabName === "translator" || tabName === "proofreader"){
             if (!AI.exists){
                 isAvaliable = "unavailable";
             }
             else {
                 isAvaliable = "toCheck";
             }
-            
             return;
         }
         AI.availability().then(async (status) => {
@@ -66,9 +72,6 @@
             untrack(() => $inputs)[tabName] = {};
         }
         for (const input of inputsInit) {
-            if (!$inputs[tabName]) {
-                untrack(() => $inputs)[tabName] = {};
-            }
             if (!$inputs[tabName][input.name]) {
                 untrack(() => $inputs)[tabName][input.name] = String(input.value);
             }
@@ -82,11 +85,6 @@
         for (const setting of settingsInit) {
             if (!$settings[tabName][setting.name]) {
                 untrack(() => $settings) [tabName][setting.name] = setting.value;
-            } else {
-                const val = $settings[tabName][setting.name];
-                if (typeof val === "string" || typeof val === "number") {
-                    setting.value = val;
-                }
             }
         }
         reinitializeAI();
@@ -95,7 +93,7 @@
     async function detectLanguage(text: string) {
         const LANGUAGE_DETECTOR = new nanoAI.ApiLanguageDetector();
         await LANGUAGE_DETECTOR.reInit();
-        const detected = await LANGUAGE_DETECTOR.detect(text);
+        const detected = await LANGUAGE_DETECTOR.detect(text) as LanguageDetectionResult[];
         return detected?.[0].detectedLanguage || "en";
     }
 
@@ -104,22 +102,23 @@
         const text = input[tabName+"-text"];
         const target = e.target as HTMLFormElement;
 
-        const images: FileList | null = target.querySelector<HTMLInputElement>("#images")?.files || null;
-        const audios: FileList | null = target.querySelector<HTMLInputElement>("#audios")?.files || null;
+        console.log(multimodalImages, multimodalAudios);
 
-        let sourceLanguage: string = String($settings["translator"]?.["sourceLanguage"] || "");
-        let targetLanguage: string = String($settings["translator"]?.["targetLanguage"] || "");
+        let sourceLanguage: string = $settings["translator"]?.["sourceLanguage"] as string || "";
+        let targetLanguage: string = $settings["translator"]?.["targetLanguage"] as string || "" ;
+        let expectedInputLanguages: string[] = $settings["proofreader"]?.["expectedInputLanguages"] as string[] || [];
+        let correctionExplanationLanguage: string = $settings["proofreader"]?.["correctionExplanationLanguage"] as string || "";
 
-        if (tabName !== "lm") messages = [];
+        if (tabName !== "prompt") messages = [];
 
-        let lmInputs: LanguageModelMessageContent[] = [];
-        lmInputs.push({ type: "text", value: text });
-        if (tabName === "lm") {
-            if (images) {
-                lmInputs.push(...Array.from(images).map(file => ({ type: "image" as LanguageModelMessageType, value: file })));
+        let promptInputs: LanguageModelMessageContent[] = [];
+        promptInputs.push({ type: "text", value: text });
+        if (tabName === "prompt") {
+            if (multimodalImages) {
+                promptInputs.push(...Array.from(multimodalImages).map(file => ({ type: "image" as LanguageModelMessageType, value: file })));
             }
-            if (audios) {
-                lmInputs.push(...Array.from(audios).map(file => ({ type: "audio" as LanguageModelMessageType, value: file })));
+            if (multimodalAudios) {
+                promptInputs.push(...Array.from(multimodalAudios).map(file => ({ type: "audio" as LanguageModelMessageType, value: file })));
             }
         }
         
@@ -138,6 +137,15 @@
             }
             console.log(`Source Language: ${sourceLanguage}, Target Language: ${targetLanguage}`);
             availability = await AI.availability({ sourceLanguage, targetLanguage});
+        } else if (tabName === "proofreader") {
+            for (let index = 0; index < expectedInputLanguages.length; index++) {
+                if (expectedInputLanguages[index] === "auto") expectedInputLanguages[index] = await detectLanguage(text);
+            }
+            if (correctionExplanationLanguage === "auto") {
+                correctionExplanationLanguage = navigator.language.substring(0, 2);
+            }
+            console.log(`Expected Input Languages: ${expectedInputLanguages.join(", ")}, Correction Explanation Language: ${correctionExplanationLanguage}`);
+            availability = await AI.availability({ expectedInputLanguages, correctionExplanationLanguage, includeCorrectionExplanations: $settings["proofreader"]?.["includeCorrectionExplanations"] });
         } else {
             availability = await AI.availability();
         }
@@ -175,28 +183,33 @@
                 if (ai.areLanguagesChanged(sourceLanguage, targetLanguage)) {
                     await AI.reInit({ sourceLanguage, targetLanguage }, setDownloadProgress);
                 }
-            }            
+            } else if (tabName === "proofreader") {
+                let ai = AI as nanoAI.ApiProofreader;
+                if (ai.areLanguagesChanged(expectedInputLanguages, correctionExplanationLanguage)) {
+                    await AI.reInit({ expectedInputLanguages, correctionExplanationLanguage, includeCorrectionExplanations: $settings["proofreader"]?.["includeCorrectionExplanations"] }, setDownloadProgress);
+                }
+            }
         } else {
             return;
         }
         
         target.reset();
-        messages.push({ role: "user", content: lmInputs });
+        messages.push({ role: "user", content: promptInputs });
 
-        let aiResponse = $state({
-            type: "text",
+        let aiResponse: LanguageModelMessageContent = $state({
+            type: "text" as LanguageModelMessageType,
             value: "",
         });
-        messages.push({ role: "system", content: [aiResponse] });
+        messages.push({ role: "assistant", content: [aiResponse] });
 
         let forCall: nanoAI.ModelInput = text;
-        if (tabName === "lm" && $generalSettings.lmMultimodal) {
-            const lmMessage: LanguageModelMessage = {
+        if (tabName === "prompt" && $generalSettings.promptMultimodal) {
+            const promptMessage: LanguageModelMessage = {
                 role: "user",
-                content: lmInputs,
+                content: promptInputs,
             }
-            const lmPrompt: LanguageModelMessage[] = [lmMessage];
-            forCall = lmPrompt;
+            const promptPrompt: LanguageModelMessage[] = [promptMessage];
+            forCall = promptPrompt;
         } else {
             forCall = text;
         }
@@ -247,13 +260,15 @@
         error = "";
         elaborating = false;
         downloadProgress = 0;
+        multimodalImages = null;
+        multimodalAudios = null;
         reinitializeAI();
     }
 </script>
 
 <div class="title-container" class:exists={AI?.exists}>
     <div class="inputs">
-        <h1>{title}</h1>
+        <h1><a href={apiDocs[tabName]}>{title}</a></h1>
         {#if isAvaliable === "unavailable"}
             <p class="unavailable">Unavailable</p>
         {:else if isAvaliable === "toCheck"}
@@ -274,17 +289,33 @@
                     return rest;
                 })()}/>
             {/each}
-            {#if tabName === "lm"}
+            {#if tabName === "prompt"}
                 <label for="useMultimodal">Multimodal</label>
-                <input type="checkbox" id="useMultimodal" bind:checked={$generalSettings.lmMultimodal} />
+                <input type="checkbox" id="useMultimodal" bind:checked={$generalSettings.promptMultimodal} />
                 <br>
-                {#if $generalSettings.lmMultimodal}
+                {#if $generalSettings.promptMultimodal}
                     <label for="images">Images</label>
-                    <input type="file" id="images" name="images" multiple accept="image/*" />
+                    <input type="file" name="images" multiple accept="image/*" bind:files={multimodalImages} />
                     <br>
                     <label for="audios">Audios</label>
-                    <input type="file" id="audios" name="audios" multiple accept="audio/*" />
+                    <input type="file" name="audios" multiple accept="audio/*" bind:files={multimodalAudios} />
                     <br>
+                    <div>
+                        {#if multimodalImages}
+                            {#each Array.from(multimodalImages) as image}
+                                <img src={URL.createObjectURL(image)} alt={image.name} />
+                            {/each}
+                        {/if}
+                        <br />
+                        {#if multimodalAudios}
+                            {#each Array.from(multimodalAudios) as audio}
+                                <audio controls>
+                                    <source src={URL.createObjectURL(audio)} type={audio.type} />
+                                    Your browser does not support the audio tag.
+                                </audio>
+                            {/each}
+                        {/if}
+                    </div>
                 {/if}
             {/if}
             <button class="submit" type="submit">{tabActions[tabName as AiTab]}</button>

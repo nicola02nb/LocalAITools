@@ -26,6 +26,7 @@ function localeToOptions(locales: { [key: string]: string }): DropdownOption[] {
   }));
 }
 
+const systemLanguage = navigator.language;
 const locales = {
   af: "af",
   af_NA: "af-NA",
@@ -760,7 +761,7 @@ const locales = {
   zu_ZA: "zu-ZA",
 };
 
-const lmSettings: InputType[] = [
+const promptSettings: InputType[] = [
   {
     name: "temperature",
     label: "Temperature:",
@@ -781,14 +782,59 @@ const lmSettings: InputType[] = [
   },
 ];
 
-const lmInputs: InputType[] = [
+const promptInputs: InputType[] = [
   {
-    name: "lm-text",
+    name: "prompt-text",
     label: "Message:",
     type: "text",
     value: "",
     placeholder: "Enter message...",
     required: false,
+  },
+];
+
+const detectorSettings: InputType[] = [];
+
+const detectorInputs: InputType[] = [
+  {
+    name: "detector-text",
+    label: "Text to detect:",
+    type: "textarea",
+    value: "",
+    placeholder: "Enter text to detect language...",
+    required: true,
+  },
+];
+
+const languages: DropdownOption[] = localeToOptions(locales);
+
+const translatorSettings: InputType[] = [
+  {
+    name: "sourceLanguage",
+    label: "Source:",
+    type: "select",
+    multiple: false,
+    value: "auto",
+    options: [{ value: "auto", label: "Auto Detect" }, ...languages],
+  },
+  {
+    name: "targetLanguage",
+    label: "Target:",
+    type: "select",
+    multiple: false,
+    value: systemLanguage,
+    options: [{ value: systemLanguage, label: `System Language (${systemLanguage})` }, ...languages],
+  },
+];
+
+const translatorInputs: InputType[] = [
+  {
+    name: "translator-text",
+    label: "Text to translate:",
+    type: "textarea",
+    value: "",
+    placeholder: "Enter text to translate...",
+    required: true,
   },
 ];
 
@@ -854,51 +900,6 @@ const summarizerInputs: InputType[] = [
     type: "textarea",
     value: "",
     placeholder: "Enter text to summarize...",
-    required: true,
-  },
-];
-
-const detectorSettings: InputType[] = [];
-
-const detectorInputs: InputType[] = [
-  {
-    name: "detector-text",
-    label: "Text to detect:",
-    type: "textarea",
-    value: "",
-    placeholder: "Enter text to detect language...",
-    required: true,
-  },
-];
-
-const languages: DropdownOption[] = localeToOptions(locales);
-
-const translatorSettings: InputType[] = [
-  {
-    name: "sourceLanguage",
-    label: "Source:",
-    type: "select",
-    multiple: false,
-    value: "auto",
-    options: [{ value: "auto", label: "Auto Detect" }, ...languages],
-  },
-  {
-    name: "targetLanguage",
-    label: "Target:",
-    type: "select",
-    multiple: false,
-    value: "auto",
-    options: [{ value: "auto", label: "System Language (Auto)" }, ...languages],
-  },
-];
-
-const translatorInputs: InputType[] = [
-  {
-    name: "translator-text",
-    label: "Text to translate:",
-    type: "textarea",
-    value: "",
-    placeholder: "Enter text to translate...",
     required: true,
   },
 ];
@@ -1038,8 +1039,8 @@ const proofreaderSettings: InputType[] = [
     label: "Correction Explanation Language:",
     type: "select",
     multiple: false,
-    value: "auto",
-    options: [{ value: "auto", label: "Auto Detect" }, ...languages],
+    value: systemLanguage,
+    options: [{ value: systemLanguage, label: `System Language (${systemLanguage})` }, ...languages],
   },
 ];
 
@@ -1055,20 +1056,20 @@ const proofreaderInputs: InputType[] = [
 ];
 
 export const nameToInputs: { [key: string]: InputType[] } = {
-  lm: lmInputs,
-  summarizer: summarizerInputs,
+  prompt: promptInputs,
   detector: detectorInputs,
   translator: translatorInputs,
+  summarizer: summarizerInputs,
   writer: writerInputs,
   rewriter: rewriterInputs,
   proofreader: proofreaderInputs
 };
 
 export const nameToSettings = {
-  lm: lmSettings,
-  summarizer: summarizerSettings,
+  prompt: promptSettings,
   detector: detectorSettings,
   translator: translatorSettings,
+  summarizer: summarizerSettings,
   writer: writerSettings,
   rewriter: rewriterSettings,
   proofreader: proofreaderSettings

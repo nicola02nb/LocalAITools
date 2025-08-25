@@ -5,6 +5,7 @@
     
     let makdownFile = "# Loading...\n\nPlease wait while the README is loading.";
     let content = $state("");
+    let error = $state("");
 
     let elaborating = $state(true);
     
@@ -20,11 +21,11 @@
             elaborating = false;
         } catch (error) {
             console.error("Failed to load README:", error);
-            makdownFile = "# Error\n\nCould not load the README file.";
+            error = "# Error\n\nCould not load the README file.";
             elaborating = false;
         }
         content = await marked(makdownFile);
     });
 </script>
 
-<Output elaborating={elaborating} content={content}/>
+<Output error={error} elaborating={elaborating} content={content} />

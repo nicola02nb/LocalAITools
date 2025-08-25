@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { activeTab, inputs, settings, generalSettings } from "./lib/Pages/shared";
-  import Page from "./lib/Pages/Page.svelte";
+  import { activeTab, tabs } from "./lib/stores/ActiveTab";
+  import { generalSettings } from "./lib/stores/Settings";
+  import { inputs, settings } from "./lib/stores/PageData";
+  import AiPage from "./lib/Pages/AiPage.svelte";
   import Home from "./lib/Pages/Home.svelte";
   import Settings from "./lib/Pages/Settings.svelte";
-
-  import { tabs } from "./lib/Pages/shared";
 </script>
 
 <main>
@@ -14,19 +14,19 @@
     <div>{JSON.stringify($settings)}</div>
   {/if}
   <div class="tab-container">
-      <div class="tab-buttons">
-          {#each tabs as tab (tab)}
-              <button class="tab-button" class:activeTab={$activeTab === tab} on:click={() => { $activeTab = tab }}>{tab}</button>
-          {/each}
-      </div>
+    <div class="tab-buttons">
+      {#each tabs as tab (tab)}
+          <button class="tab-button" class:activeTab={$activeTab === tab} on:click={() => { $activeTab = tab }}>{tab}</button>
+      {/each}
+    </div>
       <div class="tab-content">
-          {#if $activeTab === "home"}
-              <Home/>
-          {:else if $activeTab === "settings"}
-              <Settings/>
-          {:else}
-              <Page/>
-          {/if}
+        {#if $activeTab === "home"}
+            <Home/>
+        {:else if $activeTab === "settings"}
+            <Settings/>
+        {:else}
+            <AiPage tabName={$activeTab} />
+        {/if}
       </div>
   </div>
 </main>

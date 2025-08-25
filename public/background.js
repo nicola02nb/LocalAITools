@@ -17,9 +17,9 @@ chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
 // Context menu creation
 const menuItems = [
-  { id: "summarizer", title: "Summarize" },
   { id: "detector", title: "Language Detector" },
   { id: "translate", title: "Translate" },
+  { id: "summarizer", title: "Summarize" },
   { id: "rewriter", title: "Rewrite" },
   { id: "proofreader", title: "Proofread" },
 ];
