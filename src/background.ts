@@ -1,5 +1,7 @@
-var isSidePanelEnabled = false;
-var sharedSidepanel = true;
+import { isValidAction } from "./lib/actions/actions";
+
+let isSidePanelEnabled = false;
+let sharedSidepanel = true;
 chrome.storage.local.get("generalSettings", (data) => {
   sharedSidepanel =
     data.generalSettings !== undefined
@@ -16,9 +18,9 @@ chrome.storage.local.onChanged.addListener((changes) => {
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
 // Context menu creation
-const menuItems = [
+const menuItems: { id: Action; title: string }[] = [
   { id: "detector", title: "Language Detector" },
-  { id: "translate", title: "Translate" },
+  { id: "translator", title: "Translate" },
   { id: "summarizer", title: "Summarize" },
   { id: "rewriter", title: "Rewrite" },
   { id: "proofreader", title: "Proofread" },
@@ -33,20 +35,22 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-function setSidepanelVisible(visible, tab, callback = () => {}) {
+function setSidepanelVisible(visible: boolean, tab: chrome.tabs.Tab, callback = () => {}) {
   isSidePanelEnabled = visible;
   chrome.sidePanel.setOptions({ enabled: visible }, () => {
     if (visible) {
       if (sharedSidepanel) {
         chrome.sidePanel.open({ windowId: tab.windowId }, callback);
       } else {
-        chrome.sidePanel.open({ tabId: tab.id }, callback);
+        if (tab.id) {
+          chrome.sidePanel.open({ tabId: tab.id }, callback);
+        }
       }
     }
   });
 }
 
-function sendMessage(message) {
+function sendMessage(message: MessageObject) {
   chrome.runtime.sendMessage(message, function (response) {
     if (!response) {
       setTimeout(() => {
@@ -66,18 +70,22 @@ chrome.commands.onCommand.addListener((command, tab) => {
 
 // Context menu click handler
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId in menuItems.map((item) => item.id)) {
+  if (info.menuItemId in menuItems.map((item) => item.id) && tab) {
     setSidepanelVisible(true, tab, () => {
-      sendMessage({ action: info.menuItemId, text: info.selectionText });
+        if (info.selectionText && typeof info.menuItemId === "string" && isValidAction(info.menuItemId)) {
+          sendMessage({ action: info.menuItemId, text: info.selectionText });
+        }
     });
   }
 });
 
 // Overlay click handler
 chrome.runtime.onConnect.addListener((port) => {
-  port.onMessage.addListener((msg) => {
-    setSidepanelVisible(true, port.sender.tab, () => {
-      sendMessage({ action: msg.action, text: msg.text });
-    });
+  port.onMessage.addListener((msg: MessageObject) => {
+    if (port?.sender?.tab) {
+      setSidepanelVisible(true, port.sender.tab, () => {
+        sendMessage({ action: msg.action, text: msg.text });
+      });
+    }
   });
 });

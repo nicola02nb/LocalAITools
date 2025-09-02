@@ -1,14 +1,22 @@
-const actions = ["detector", "translator", "summarizer", "rewriter", "proofreader"];
-const mapActions = {
-  translator: {
-    text: "Translate",
-    className: "Translator",
-    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m476-80 182-480h84L924-80h-84l-43-122H603L560-80h-84ZM160-200l-56-56 202-202q-35-35-63.5-80T190-640h84q20 39 40 68t48 58q33-33 68.5-92.5T484-720H40v-80h280v-80h80v80h280v80H564q-21 72-63 148t-83 116l96 98-30 82-122-125-202 201Zm468-72h144l-72-204-72 204Z"/></svg>',
-  },
+const actions: Action[] = ["detector", "translator", "summarizer", "rewriter", "proofreader"];
+type MapActions = {
+  [key in Action]: {
+    text: string;
+    className: string;
+    icon: string;
+  };
+};
+
+const mapActions: MapActions = {
   detector: {
     text: "Detect",
     className: "LanguageDetector",
     icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>',
+  },
+  translator: {
+    text: "Translate",
+    className: "Translator",
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="m476-80 182-480h84L924-80h-84l-43-122H603L560-80h-84ZM160-200l-56-56 202-202q-35-35-63.5-80T190-640h84q20 39 40 68t48 58q33-33 68.5-92.5T484-720H40v-80h280v-80h80v80h280v80H564q-21 72-63 148t-83 116l96 98-30 82-122-125-202 201Zm468-72h144l-72-204-72 204Z"/></svg>',
   },
   summarizer: {
     text: "Summarize",
@@ -28,15 +36,15 @@ const mapActions = {
 };
 
 class Overlay {
-  isEnabled;
-  hideOnClick;
+  isEnabled: boolean;
+  hideOnClick: boolean;
 
-  overlay;
-  buttons;
+  overlay: HTMLDivElement;
+  buttons: HTMLButtonElement[];
 
-  shown;
+  shown: boolean;
 
-  hideTimeout;
+  hideTimeout: ReturnType<typeof setTimeout> | null;
 
   constructor({ isEnabled = true, hideOnClick = true } = {}) {
     this.isEnabled = isEnabled;
@@ -47,7 +55,7 @@ class Overlay {
     this.buttons = [];
     this.shown = false;
     this.hideTimeout = null;
-    for (let action of actions) {
+    for (const action of actions) {
       const button = this.createActionButton(action);
       this.buttons.push(button);
       this.overlay.appendChild(button);
@@ -55,17 +63,17 @@ class Overlay {
     document.body.appendChild(this.overlay);
   }
 
-  createActionButton(action) {
-    let button = document.createElement("button");
+  createActionButton(action: Action) {
+    const button = document.createElement("button");
     button.innerHTML = mapActions[action]["icon"];
     button.classList.add("nano-ai-extension-button");
     button.setAttribute("action", action);
     button.title = mapActions[action]["text"];
     button.onclick = () => {
-      let selection = document.getSelection();
-      if (!this.overlay.classList.contains("disabled")) {
+      const selection = document.getSelection();
+      if (selection && !this.overlay.classList.contains("disabled")) {
         const port = chrome.runtime.connect();
-        port.postMessage({ action: action, text: selection.toString() });
+        port.postMessage({ action: action, text: selection.toString() } as MessageObject);
       }
       this.hide();
     };
@@ -73,8 +81,8 @@ class Overlay {
   }
   updateButtons() {
     for (const button of this.buttons) {
-      const action = button.getAttribute("action");
-      if (!self[mapActions[action].className]) {
+      const action = button.getAttribute("action") as Action;
+      if (action && !mapActions[action].className) {
         button.classList.add("disabled");
       } else {
         button.classList.remove("disabled");
@@ -82,7 +90,7 @@ class Overlay {
     }
   }
 
-  setEnabled(enabled) {
+  setEnabled(enabled: boolean) {
     if (enabled) {
       this.isEnabled = true;
     } else {
@@ -90,7 +98,7 @@ class Overlay {
       this.hide();
     }
   }
-  setHideOnClick(hideOnClick) {
+  setHideOnClick(hideOnClick: boolean) {
     if (hideOnClick) {
       this.hideOnClick = true;
       this.overlay.onclick = () => {
@@ -102,7 +110,7 @@ class Overlay {
     }
   }
 
-  show(x, y) {
+  show(x: number, y: number) {
     if (!this.isEnabled) return;
 
     this.updateButtons();
@@ -114,25 +122,25 @@ class Overlay {
     this.move(x, y);
 
     this.shown = true;
-    this.startTimeoutHide(5000);
+    this.startTimeoutHide(5);
   }
   hide() {
     this.shown = false;
     this.overlay.classList.add("hidden");
     this.stopTimeoutHide();
   }
-  move(x, y) {
+  move(x: number, y: number) {
     this.overlay.style.left = `${x}px`;
     this.overlay.style.top = `${y}px`;
   }
 
-  startTimeoutHide(timeout) {
+  startTimeoutHide(seconds: number) {
     if (this.hideTimeout) {
       clearTimeout(this.hideTimeout);
     }
     this.hideTimeout = setTimeout(() => {
       this.hide();
-    }, timeout);
+    }, seconds * 1000);
   }
   stopTimeoutHide() {
     if (this.hideTimeout) {
@@ -144,18 +152,19 @@ class Overlay {
 
 const overlay = new Overlay();
 
-document.addEventListener("selectionchange", function () {
-  let selection = document.getSelection();
-  if (!selection.isCollapsed) {
-    let range = selection.getRangeAt(selection.rangeCount - 1);
-    let startRange = range.cloneRange();
+document.addEventListener("selectionchange", (e: Event) => {
+  if (e.type !== "selectionchange") return;
+  const selection = document.getSelection();
+  if (selection && !selection.isCollapsed) {
+    const range = selection.getRangeAt(selection.rangeCount - 1);
+    const startRange = range.cloneRange();
     startRange.collapse(true);
-    let endRange = range.cloneRange();
+    const endRange = range.cloneRange();
     endRange.collapse(false);
-    let startRect = startRange.getBoundingClientRect();
-    let endRect = endRange.getBoundingClientRect();
-    let isReverse = startRect.left > endRect.left;
-    let rect = isReverse ? startRect : endRect;
+    const startRect = startRange.getBoundingClientRect();
+    const endRect = endRange.getBoundingClientRect();
+    const isReverse = startRect.left > endRect.left;
+    const rect = isReverse ? startRect : endRect;
     overlay.show(rect.right + window.scrollX, rect.bottom + window.scrollY);
   } else {
     overlay.hide();
