@@ -12,9 +12,7 @@
     let elaborating = $state(false);
 
     let error: string = $state("");
-
-    let msgs = $derived($messages[tabName]);
 </script>
 
-<Head bind:title={title} bind:tabName={tabName} bind:elaborating={elaborating} bind:messages={msgs} bind:error={error}/>
-<Output elaborating={elaborating} error={error} bind:messages={msgs}/>
+<Head bind:title={title} bind:tabName={tabName} bind:elaborating={elaborating} bind:error={error}/>
+<Output bind:tabName={tabName} elaborating={elaborating} error={error}/>

@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import type { ModelInput, ModelOutput } from "../api/nano-ai";
-import type { AiTab } from "./ActiveTab";
+import type { AiTab, TabName } from "./ActiveTab";
 
 type InputType = { [key: string]: string };
 type Input = {
@@ -11,9 +11,6 @@ type Settings = {
   [key in AiTab]: SettingsType;
 }
 export type MessagesTypes = (ModelInput | ModelOutput)[];
-type Messages = {
-  [K in AiTab]: MessagesTypes;
-};
 
 export const inputs = writable<Input>({
   prompt: {},
@@ -33,14 +30,16 @@ export const settings = writable<Settings>({
   rewriter: {},
   proofreader: {}
 });
-export const messages = writable<Messages>({
-  prompt: [],
-  summarizer: [],
-  detector: [],
-  translator: [],
-  writer: [],
-  rewriter: [],
-  proofreader: []
+export const messages = writable<{ [key in TabName]: ModelOutput[] }>({
+  home: new Array<ModelOutput>(),
+  prompt: new Array<ModelOutput>(),
+  summarizer: new Array<ModelOutput>(),
+  detector: new Array<ModelOutput>(),
+  translator: new Array<ModelOutput>(),
+  writer: new Array<ModelOutput>(),
+  rewriter: new Array<ModelOutput>(),
+  proofreader: new Array<ModelOutput>(),
+  settings: new Array<ModelOutput>(),
 });
 
 if (chrome?.storage?.local) {

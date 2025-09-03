@@ -1,4 +1,4 @@
-import { isValidAction } from "./lib/actions/actions";
+import { isValidAction, type Action, type MessageObject } from "./lib/stores/Actions";
 
 let isSidePanelEnabled = false;
 let sharedSidepanel = true;

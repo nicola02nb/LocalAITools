@@ -1,4 +1,5 @@
-const actions: Action[] = ["detector", "translator", "summarizer", "rewriter", "proofreader"];
+import { actions, type Action, type MessageObject } from "./lib/stores/Actions";
+
 type MapActions = {
   [key in Action]: {
     text: string;

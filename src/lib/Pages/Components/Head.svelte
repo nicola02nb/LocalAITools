@@ -3,7 +3,7 @@
 
     import { type AiTab, tabActions, apiDocs } from "../../stores/ActiveTab";
     import { generalSettings } from "../../stores/Settings";
-    import { inputs, settings, type MessagesTypes } from "../../stores/PageData";
+    import { inputs, messages, settings } from "../../stores/PageData";
     import Input from "./Input.svelte";
     
     import { untrack } from "svelte";
@@ -11,12 +11,17 @@
     import * as nanoAI from "../../api/nano-ai";
     import { nameToInputs, nameToSettings } from "../../stores/InputsPreset";
     
-    let { title = $bindable(), tabName = $bindable(), elaborating = $bindable(), messages = $bindable(), error = $bindable() }
-        :{ title: string; tabName: AiTab; elaborating: boolean; messages: MessagesTypes; error: string; } = $props();
+    let { title = $bindable(), tabName = $bindable(), elaborating = $bindable(), error = $bindable() }
+        :{ title: string; tabName: AiTab; elaborating: boolean; error: string; } = $props();
 
     let inputsInit = $derived(nameToInputs[tabName]);
     let settingsInit = $derived(nameToSettings[tabName]);
+    let messagesInit = $state($messages[tabName]);
     let optionsOpen = $state(false);
+
+    $effect(() => {
+        $messages[tabName] = messagesInit;
+    });
 
     let multimodalImages: FileList | null = $state(null);
     let multimodalAudios: FileList | null = $state(null);
@@ -32,7 +37,7 @@
 
     $effect.pre(() => {
         error = "";
-        messages = [];
+        messagesInit = [];
         downloadProgress = 0;
         isAvaliable = "unavailable";
         elaborating = false;
@@ -109,7 +114,7 @@
         let expectedInputLanguages: string[] = $settings["proofreader"]?.["expectedInputLanguages"] as string[] || [];
         let correctionExplanationLanguage: string = $settings["proofreader"]?.["correctionExplanationLanguage"] as string || "";
 
-        if (tabName !== "prompt") messages = [];
+        if (tabName !== "prompt") messagesInit = [];
 
         let promptInputs: LanguageModelMessageContent[] = [];
         promptInputs.push({ type: "text", value: text });
@@ -194,13 +199,13 @@
         }
         
         target.reset();
-        messages.push({ role: "user", content: promptInputs });
+        messagesInit.push({ role: "user", content: promptInputs });
 
         let aiResponse: LanguageModelMessageContent = $state({
             type: "text" as LanguageModelMessageType,
             value: "",
         });
-        messages.push({ role: "assistant", content: [aiResponse] });
+        messagesInit.push({ role: "assistant", content: [aiResponse] });
 
         let forCall: nanoAI.ModelInput = text;
         if (tabName === "prompt" && $generalSettings.promptMultimodal) {
@@ -256,7 +261,7 @@
 
     function reset(){
         $inputs[tabName] = {};
-        messages = [];
+        messagesInit = [];
         error = "";
         elaborating = false;
         downloadProgress = 0;

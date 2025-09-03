@@ -1,10 +1,17 @@
 <script lang="ts">
-  import type { MessagesTypes } from "../../stores/PageData";
   import CopyButton from "./CopyButton.svelte";
   import MediaOutput from "./MediaOutput.svelte";
+  import { messages} from "../../stores/PageData";
+  import type { TabName } from "../../stores/ActiveTab";
+  import type { ModelOutput } from "../../api/nano-ai";
 
-    let { error = "", content="", messages = $bindable(), elaborating = true }
-        :{ error?: string; content?: string; messages?: MessagesTypes; elaborating?: boolean; } = $props();
+    let { tabName = $bindable(), error = "", content="", elaborating = true }
+        :{ tabName: TabName, error?: string; content?: string; elaborating?: boolean; } = $props();
+    let currentMessages: ModelOutput[] = $state($messages[tabName]);
+
+    $effect(() => {
+        currentMessages = $messages[tabName];
+    });
 
     $effect(() => {
         if (!elaborating){
@@ -16,8 +23,8 @@
     });
 
     $effect(() => {
-        if (messages && messages.length > 0) {
-            const lastMessageElement = document.getElementById(`message-${messages.length - 1}`);
+        if (currentMessages && currentMessages.length > 0) {
+            const lastMessageElement = document.getElementById(`message-${$messages[tabName].length - 1}`);
             if (lastMessageElement) {
                 lastMessageElement.scrollIntoView({ behavior: "smooth", block: "end" });
             }
@@ -29,8 +36,8 @@
     {#if error}
         <div class="error">{error}</div>
     {/if}
-    {#if messages && messages.length > 0}
-        {#each messages as message, index (index)}
+    {#if currentMessages && currentMessages.length > 0}
+        {#each currentMessages as message, index (index)}
             {#if typeof message === "string"}
                 <div class="text" id="message-{index}">{@html message}</div>
             {:else}
@@ -60,7 +67,6 @@
                     </div>
                 </div>
             {/if}
-            
         {/each}
     {:else if content}
         <div class="loader" class:loading={elaborating}></div>

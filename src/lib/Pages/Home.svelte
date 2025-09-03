@@ -28,4 +28,4 @@
     });
 </script>
 
-<Output error={error} elaborating={elaborating} content={content} />
+<Output tabName="home" error={error} elaborating={elaborating} content={content} />
