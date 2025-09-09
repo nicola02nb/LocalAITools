@@ -20,7 +20,7 @@ const defaultGeneralSettings = {
 
 export const generalSettings = writable<GlobalSettings>(defaultGeneralSettings);
 
-export function resetSettings(){
+export function resetSettings() {
   generalSettings.set(defaultGeneralSettings);
 }
 

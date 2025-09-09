@@ -823,7 +823,10 @@ const translatorSettings: InputType[] = [
     type: "select",
     multiple: false,
     value: systemLanguage,
-    options: [{ value: systemLanguage, label: `System Language (${systemLanguage})` }, ...languages],
+    options: [
+      { value: systemLanguage, label: `System Language (${systemLanguage})` },
+      ...languages,
+    ],
   },
 ];
 
@@ -985,7 +988,7 @@ const rewriterSettings: InputType[] = [
   {
     name: "length",
     label: "Length:",
-    type: "select",    
+    type: "select",
     multiple: false,
     value: "as-is",
     options: [
@@ -1040,7 +1043,10 @@ const proofreaderSettings: InputType[] = [
     type: "select",
     multiple: false,
     value: systemLanguage,
-    options: [{ value: systemLanguage, label: `System Language (${systemLanguage})` }, ...languages],
+    options: [
+      { value: systemLanguage, label: `System Language (${systemLanguage})` },
+      ...languages,
+    ],
   },
 ];
 
@@ -1062,7 +1068,7 @@ export const nameToInputs: { [key: string]: InputType[] } = {
   summarizer: summarizerInputs,
   writer: writerInputs,
   rewriter: rewriterInputs,
-  proofreader: proofreaderInputs
+  proofreader: proofreaderInputs,
 };
 
 export const nameToSettings = {
@@ -1072,5 +1078,5 @@ export const nameToSettings = {
   summarizer: summarizerSettings,
   writer: writerSettings,
   rewriter: rewriterSettings,
-  proofreader: proofreaderSettings
+  proofreader: proofreaderSettings,
 };

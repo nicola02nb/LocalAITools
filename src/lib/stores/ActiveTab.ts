@@ -18,7 +18,7 @@ export const tabs: TabName[] = [
   "writer",
   "rewriter",
   "proofreader",
-  "settings"
+  "settings",
 ];
 export const tabNames = {
   home: "Home",

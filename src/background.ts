@@ -1,4 +1,8 @@
-import { isValidAction, type Action, type MessageObject } from "./lib/stores/Actions";
+import {
+  isValidAction,
+  type Action,
+  type MessageObject,
+} from "./lib/stores/Actions";
 
 let isSidePanelEnabled = false;
 let sharedSidepanel = true;
@@ -35,7 +39,11 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-function setSidepanelVisible(visible: boolean, tab: chrome.tabs.Tab, callback = () => {}) {
+function setSidepanelVisible(
+  visible: boolean,
+  tab: chrome.tabs.Tab,
+  callback = () => {},
+) {
   isSidePanelEnabled = visible;
   chrome.sidePanel.setOptions({ enabled: visible }, () => {
     if (visible) {
@@ -72,9 +80,13 @@ chrome.commands.onCommand.addListener((command, tab) => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId in menuItems.map((item) => item.id) && tab) {
     setSidepanelVisible(true, tab, () => {
-        if (info.selectionText && typeof info.menuItemId === "string" && isValidAction(info.menuItemId)) {
-          sendMessage({ action: info.menuItemId, text: info.selectionText });
-        }
+      if (
+        info.selectionText &&
+        typeof info.menuItemId === "string" &&
+        isValidAction(info.menuItemId)
+      ) {
+        sendMessage({ action: info.menuItemId, text: info.selectionText });
+      }
     });
   }
 });

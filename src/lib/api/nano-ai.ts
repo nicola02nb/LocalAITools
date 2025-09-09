@@ -32,7 +32,11 @@ type CallOptions =
   | RewriterRewriteOptions
   | ProofreaderProofreadOptions;
 export type ModelInput = string | LanguageModelPrompt;
-export type ModelOutput = string | LanguageModelMessage | LanguageDetectionResult[] | ProofreaderProofreadResult;
+export type ModelOutput =
+  | string
+  | LanguageModelMessage
+  | LanguageDetectionResult[]
+  | ProofreaderProofreadResult;
 
 type CallbackDownload = (ev: ProgressEvent<EventTarget>) => void;
 
@@ -119,7 +123,7 @@ export class ApiBase<
   }
 
   async measureInputUsage(text: string, options?: CallOptions) {
-    if (this.serviceInstance && 'measureInputUsage' in this.serviceInstance) {
+    if (this.serviceInstance && "measureInputUsage" in this.serviceInstance) {
       return await this.serviceInstance.measureInputUsage(text, options);
     }
     return undefined;
@@ -258,7 +262,9 @@ export class ApiLanguageDetector extends ApiBase<
   }
 
   async detect(text: string, options?: LanguageDetectorDetectOptions) {
-    return await this.serviceInstance?.detect(text, options) || serviceNotAvailable;
+    return (
+      (await this.serviceInstance?.detect(text, options)) || serviceNotAvailable
+    );
   }
 }
 
@@ -368,12 +374,16 @@ export class ApiProofreader extends ApiBase<
     this.call = this.proofread;
   }
 
-  areLanguagesChanged(expectedInputLanguages: string[], correctionExplanationLanguage: string) {
+  areLanguagesChanged(
+    expectedInputLanguages: string[],
+    correctionExplanationLanguage: string,
+  ) {
     return (
       this.serviceInstance?.expectedInputLanguages === undefined ||
       this.serviceInstance?.correctionExplanationLanguage === undefined ||
       this.serviceInstance?.expectedInputLanguages !== expectedInputLanguages ||
-      this.serviceInstance?.correctionExplanationLanguage !== correctionExplanationLanguage
+      this.serviceInstance?.correctionExplanationLanguage !==
+        correctionExplanationLanguage
     );
   }
 

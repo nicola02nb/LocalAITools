@@ -5,11 +5,11 @@ import type { AiTab, TabName } from "./ActiveTab";
 type InputType = { [key: string]: string };
 type Input = {
   [K in AiTab]: InputType;
-}
+};
 type SettingsType = { [key: string]: boolean | number | string | string[] };
 type Settings = {
   [key in AiTab]: SettingsType;
-}
+};
 export type MessagesTypes = (ModelInput | ModelOutput)[];
 
 export const inputs = writable<Input>({
@@ -19,7 +19,7 @@ export const inputs = writable<Input>({
   translator: {},
   writer: {},
   rewriter: {},
-  proofreader: {}
+  proofreader: {},
 });
 export const settings = writable<Settings>({
   prompt: {},
@@ -28,7 +28,7 @@ export const settings = writable<Settings>({
   translator: {},
   writer: {},
   rewriter: {},
-  proofreader: {}
+  proofreader: {},
 });
 export const messages = writable<{ [key in TabName]: ModelOutput[] }>({
   home: new Array<ModelOutput>(),
