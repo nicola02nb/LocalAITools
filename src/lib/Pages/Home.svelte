@@ -19,8 +19,8 @@
                 makdownFile = "# Error\n\nCould not load the README file.";
             }
             elaborating = false;
-        } catch (error) {
-            console.error("Failed to load README:", error);
+        } catch (err) {
+            console.error("Failed to load README:", err);
             error = "# Error\n\nCould not load the README file.";
             elaborating = false;
         }

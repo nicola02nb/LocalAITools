@@ -307,13 +307,13 @@
                     <br>
                     <div>
                         {#if multimodalImages}
-                            {#each Array.from(multimodalImages) as image}
+                            {#each Array.from(multimodalImages) as image, index (index)}
                                 <img src={URL.createObjectURL(image)} alt={image.name} />
                             {/each}
                         {/if}
                         <br />
                         {#if multimodalAudios}
-                            {#each Array.from(multimodalAudios) as audio}
+                            {#each Array.from(multimodalAudios) as audio, index (index)}
                                 <audio controls>
                                     <source src={URL.createObjectURL(audio)} type={audio.type} />
                                     Your browser does not support the audio tag.

@@ -7,11 +7,7 @@
 
     let { tabName = $bindable(), error = "", content="", elaborating = true }
         :{ tabName: TabName, error?: string; content?: string; elaborating?: boolean; } = $props();
-    let currentMessages: ModelOutput[] = $state($messages[tabName]);
-
-    $effect(() => {
-        currentMessages = $messages[tabName];
-    });
+    let currentMessages: ModelOutput[] = $derived($messages[tabName]);
 
     $effect(() => {
         if (!elaborating){
@@ -39,6 +35,7 @@
     {#if currentMessages && currentMessages.length > 0}
         {#each currentMessages as message, index (index)}
             {#if typeof message === "string"}
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                 <div class="text" id="message-{index}">{@html message}</div>
             {:else}
                 <div id="message-{index}" class="message {typeof message === "string" ? '' : ('role' in message ? (message.role ?? '') : '')}">
@@ -55,6 +52,7 @@
                         {#if 'content' in message}
                             {#each message.content as input, index (index)}
                                 {#if typeof input === "string"}
+                                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                                     <div class="text">{@html input}</div>
                                 {:else if input.type === "text"}
                                     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
