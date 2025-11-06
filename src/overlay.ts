@@ -1,4 +1,12 @@
-import { actions, type Action, type MessageObject } from "./lib/stores/Actions";
+import { type Action, type MessageObject } from "./lib/stores/Actions";
+
+export const actions: Action[] = [
+  "detector",
+  "translator",
+  "summarizer",
+  "rewriter",
+  "proofreader",
+];
 
 type MapActions = {
   [key in Action]: {
